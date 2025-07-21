@@ -1,6 +1,14 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, render_template
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
+
+# Load domains from an env var (comma-separated)
+DOMAINS = os.getenv('LOGOUT_DOMAINS', '').split(',') if os.getenv('LOGOUT_DOMAINS') else []
+
+@app.route('/')
+def conductor():
+    return render_template('conductor.html.j2', domains=DOMAINS)
 
 @app.route('/logout')
 def logout():
