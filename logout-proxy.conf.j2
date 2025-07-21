@@ -1,0 +1,14 @@
+location = /logout {
+    # Proxy to the logout service
+    proxy_pass         http://{{ logout_service_host }}:{{ logout_service_port }}/logout;
+    proxy_set_header   Host              $host;
+    proxy_set_header   X-Real-IP         $remote_addr;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Forwarded-Proto $scheme;
+    proxy_http_version 1.1;
+
+    # Timeouts (optional overrides)
+    proxy_connect_timeout       {{ proxy_connect_timeout | default('5s') }};
+    proxy_send_timeout          {{ proxy_send_timeout | default('30s') }};
+    proxy_read_timeout          {{ proxy_read_timeout | default('30s') }};
+}
