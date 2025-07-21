@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Central Logout Status</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .status-in-process { color: #b8860b; }  /* darkkhaki for yellow-ish */
+    .status-success { color: #228b22; }     /* forestgreen */
+    .status-failure { color: #b22222; }     /* firebrick */
+  </style>
+</head>
+<body>
+  <h1>Logout Status</h1>
+  <p>Logging you out from all services...</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for host in domains %}
+      <tr>
+        <td><a href="https://{{ host }}/logout" target="_blank">{{ host }}</a></td>
+        <td id="status-{{ loop.index0 }}" class="status-in-process">⏳ In process</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    const domains = {{ domains | tojson | safe }};
+
+    domains.forEach((host, index) => {
+      fetch(`https://${host}/logout`, { credentials: 'include' })
+        .then(res => {
+          const cell = document.getElementById(`status-${index}`);
+          if (res.ok) {
+            cell.textContent = '✅ Logged out';
+            cell.className = 'status-success';
+          } else {
+            cell.textContent = '❌ Failed';
+            cell.className = 'status-failure';
+          }
+        })
+        .catch(() => {
+          const cell = document.getElementById(`status-${index}`);
+          cell.textContent = '❌ Failed';
+          cell.className = 'status-failure';
+        });
+    });
+  </script>
+</body>
+</html>
