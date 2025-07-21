@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Central Logout Status</title>
+  <title>Central Logout Status🚦</title>
   <style>
     table { border-collapse: collapse; width: 100%; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -12,10 +12,9 @@
     .status-failure { color: #b22222; }     /* firebrick */
   </style>
 </head>
-<body>
+<body>  
   <h1>Logout Status</h1>
   <p>Logging you out from all services...</p>
-
   <table>
     <thead>
       <tr>
@@ -26,13 +25,13 @@
     <tbody>
       {% for host in domains %}
       <tr>
-        <td><a href="https://{{ host }}/logout" target="_blank">{{ host }}</a></td>
-        <td id="status-{{ loop.index0 }}" class="status-in-process">⏳ In process</td>
+        <td>🌐 <a href="https://{{ host }}/logout" target="_blank">{{ host }}</a></td>
+        <td id="status-{{ loop.index0 }}" class="status-in-process">🔄 In process/td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-
+  <p><a href="/">🏠 Home</a></p> <p><a href="javascript:history.back()">↩️ Back/a></p>
   <script>
     const domains = {{ domains | tojson | safe }};
 
