@@ -10,6 +10,14 @@
     .status-in-process { color: #b8860b; }  /* darkkhaki for yellow-ish */
     .status-success    { color: #228b22; }  /* forestgreen */
     .status-failure    { color: #b22222; }  /* firebrick */
+    a.manual-logout-link {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a.manual-logout-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>  
@@ -20,6 +28,7 @@
       <tr>
         <th>🌐 Domain</th>
         <th>⚙️ Status</th>
+        <th>🔨 Manual Logout</th>
       </tr>
     </thead>
     <tbody>
@@ -27,12 +36,12 @@
       <tr>
         <td>🌐 <a href="https://{{ host }}/logout" target="_blank">{{ host }}</a></td>
         <td id="status-{{ loop.index0 }}" class="status-in-process">🔄 In process</td>
+        <td><a href="https://{{ host }}/logout" target="_blank" rel="noopener noreferrer" class="manual-logout-link">💥 Logout</a></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  <p><a href="/">🏠 Home</a></p>
-  <p><a href="javascript:history.back()">↩️ Back</a></p>
+  <p><a href="https://github.com/kevinveenbirkenbach/universal-logout">🤖 Source Code</a></p>
   <script>
     const domains = {{ domains | tojson | safe }};
 
