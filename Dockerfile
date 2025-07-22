@@ -21,4 +21,4 @@ COPY templates/ ./templates/
 EXPOSE ${LOGOUT_PORT}
 
 # Start the Flask app with Gunicorn, binding to dynamic port
-CMD ["gunicorn", "--bind", "0.0.0.0:${LOGOUT_PORT}", "app:app"]
+CMD exec gunicorn --bind 0.0.0.0:${LOGOUT_PORT} app:app
