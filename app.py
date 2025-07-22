@@ -1,10 +1,19 @@
-from flask import Flask, request, make_response, render_template
+import logging
+import sys
 import os
+from flask import Flask, request, make_response, render_template
 
 app = Flask(__name__, template_folder='templates')
 
-# Load domains from an env var (comma-separated)
 DOMAINS = os.getenv('LOGOUT_DOMAINS', '').split(',') if os.getenv('LOGOUT_DOMAINS') else []
+DEBUG = os.getenv('DEBUG_LOGOUT', 'false').lower() in ('1', 'true', 'yes')
+
+logging.basicConfig(
+    level=logging.DEBUG if DEBUG else logging.INFO,
+    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
 @app.route('/')
 def conductor():
@@ -12,13 +21,14 @@ def conductor():
 
 @app.route('/logout')
 def logout():
-    # 1) Determine the host (e.g., 'app.cymais.cloud')
     host = request.host.split(':')[0]
-    # 2) Derive parent domain (e.g., '.cymais.cloud')
     parts = host.split('.')
     parent_domain = '.' + '.'.join(parts[-2:])
 
-    # 3) Parse all cookie names from the Cookie header
+    if DEBUG:
+        logger.debug(f"Incoming host: {host}")
+        logger.debug(f"Derived parent domain for cookie deletion: {parent_domain}")
+
     cookie_header = request.headers.get('Cookie', '')
     cookie_names = []
     for part in cookie_header.split(';'):
@@ -27,9 +37,13 @@ def logout():
             if name:
                 cookie_names.append(name)
 
-    # 4) Build response with expired Set-Cookie headers
+    if DEBUG:
+        logger.debug(f"Cookies to expire: {cookie_names}")
+
     response = make_response('You have been logged out.', 200)
     for name in cookie_names:
+        if DEBUG:
+            logger.debug(f"Expiring cookie: {name} on domain {parent_domain}")
         response.set_cookie(
             key=name,
             value='',
@@ -41,7 +55,3 @@ def logout():
             samesite='Lax'
         )
     return response
-
-if __name__ == '__main__':
-    # For development only; use Gunicorn in production
-    app.run(host='0.0.0.0', port=8000)
