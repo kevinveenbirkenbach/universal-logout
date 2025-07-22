@@ -1,10 +1,11 @@
+from flask import Flask, request, make_response, render_template
 import logging
 import sys
 import os
-from flask import Flask, request, make_response, render_template
 
 app = Flask(__name__, template_folder='templates')
 
+# Load domains from an env var (comma-separated)
 DOMAINS = os.getenv('LOGOUT_DOMAINS', '').split(',') if os.getenv('LOGOUT_DOMAINS') else []
 DEBUG = os.getenv('DEBUG_LOGOUT', 'false').lower() in ('1', 'true', 'yes')
 
@@ -14,6 +15,7 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
+
 
 @app.route('/')
 def conductor():
@@ -43,7 +45,11 @@ def logout():
     response = make_response('You have been logged out.', 200)
     for name in cookie_names:
         if DEBUG:
-            logger.debug(f"Expiring cookie: {name} on domain {parent_domain}")
+            logger.debug(f"Expiring cookie: {name} on parent domain {parent_domain}")
+            logger.debug(f"Expiring cookie: {name} on subdomain {host}")
+            logger.debug(f"Expiring cookie: {name} without domain (host-only)")
+
+        # Delete cookie on parent domain
         response.set_cookie(
             key=name,
             value='',
@@ -54,4 +60,30 @@ def logout():
             httponly=True,
             samesite='Lax'
         )
+        # Delete cookie on subdomain (host)
+        response.set_cookie(
+            key=name,
+            value='',
+            expires=0,
+            domain=host,
+            path='/',
+            secure=True,
+            httponly=True,
+            samesite='Lax'
+        )
+        # Delete host-only cookie (no domain)
+        response.set_cookie(
+            key=name,
+            value='',
+            expires=0,
+            path='/',
+            secure=True,
+            httponly=True,
+            samesite='Lax'
+        )
+
     return response
+
+if __name__ == '__main__':
+    # For development only; use Gunicorn in production
+    app.run(host='0.0.0.0', port=8000)
