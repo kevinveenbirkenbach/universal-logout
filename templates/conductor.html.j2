@@ -1,66 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Logout🍪</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .status-in-process { color: #b8860b; }  /* darkkhaki for yellow-ish */
-    .status-success    { color: #228b22; }  /* forestgreen */
-    .status-failure    { color: #b22222; }  /* firebrick */
-    a.manual-logout-link {
-      color: #1a73e8;
-      text-decoration: none;
-      font-weight: bold;
+    /* Status colors */
+    .status-in-process {
+      color: #b8860b; /* darkkhaki */
+      font-weight: 600;
     }
-    a.manual-logout-link:hover {
-      text-decoration: underline;
+    .status-success {
+      color: #228b22; /* forestgreen */
+      font-weight: 600;
+    }
+    .status-failure {
+      color: #b22222; /* firebrick */
+      font-weight: 600;
+    }
+    /* Manual logout link as a button */
+    .manual-logout-link {
+      font-weight: 600;
     }
   </style>
 </head>
-<body>  
-  <h1>Logout</h1>
-  <p>Eating all your cookies🍪 and logging🔐 you out from all services...Yummy!🐷</p>
-  <table>
-    <thead>
-      <tr>
-        <th>🌐 Domain</th>
-        <th>⚙️ Status</th>
-        <th>🔨 Manual Logout</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for host in domains %}
-      <tr>
-        <td>🌐 <a href="https://{{ host }}/logout" target="_blank">{{ host }}</a></td>
-        <td id="status-{{ loop.index0 }}" class="status-in-process">🔄 In process</td>
-        <td><a href="https://{{ host }}/logout" target="_blank" rel="noopener noreferrer" class="manual-logout-link">💥 Logout</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <p><a href="https://github.com/kevinveenbirkenbach/universal-logout">🤖 Source Code</a></p>
+<body class="bg-light">
+  <div class="container py-5">
+    <h1 class="mb-4 text-center">Logout 🍪</h1>
+    <p class="lead text-center">
+      Eating all your cookies and logging 🔐 you out from all services... Yummy! 🐷
+    </p>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-light text-center">
+          <tr>
+            <th scope="col">🌐 Domain</th>
+            <th scope="col">⚙️ Status</th>
+            <th scope="col">🔨 Manual Logout</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for host in domains %}
+          <tr>
+            <td>
+              🌐 <a href="https://{{ host }}/logout" target="_blank" rel="noopener noreferrer">{{ host }}</a>
+            </td>
+            <td id="status-{{ loop.index0 }}" class="status-in-process text-center">
+              🔄 In process
+            </td>
+            <td class="text-center">
+              <a
+                href="https://{{ host }}/logout"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline-primary btn-sm manual-logout-link"
+                >💥 Logout from {{ host }}</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-center mt-4">
+      <a href="https://github.com/kevinveenbirkenbach/universal-logout" target="_blank" rel="noopener noreferrer">
+        🤖 Source Code
+      </a>
+    </p>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle CDN (Popper + Bootstrap JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
     const domains = {{ domains | tojson | safe }};
 
     domains.forEach((host, index) => {
-      fetch(`https://${host}/logout`, { credentials: 'include' })
-        .then(res => {
+      fetch(`https://${host}/logout`, { credentials: "include" })
+        .then((res) => {
           const cell = document.getElementById(`status-${index}`);
           if (res.ok) {
-            cell.textContent = '✅ Logged out';
-            cell.className = 'status-success';
+            cell.textContent = "✅ Logged out";
+            cell.className = "status-success text-center";
           } else {
-            cell.textContent = '❌ Failed';
-            cell.className = 'status-failure';
+            cell.textContent = "❌ Failed";
+            cell.className = "status-failure text-center";
           }
         })
         .catch(() => {
           const cell = document.getElementById(`status-${index}`);
-          cell.textContent = '❌ Failed';
-          cell.className = 'status-failure';
+          cell.textContent = "❌ Failed";
+          cell.className = "status-failure text-center";
         });
     });
   </script>
