@@ -42,7 +42,7 @@
           {% for host in domains %}
           <tr>
             <td>
-              🌐 <a href="https://{{ host }}" target="_blank" rel="noopener noreferrer">{{ host }}</a>
+              🌐 <a href="{{ host }}" target="_blank" rel="noopener noreferrer">{{ host }}</a>
             </td>
             <td id="status-{{ loop.index0 }}" class="status-in-process text-center">
               🔄 In process
@@ -50,7 +50,7 @@
             <td class="text-center">
               <!-- Add a static cache-buster to discourage caching of manual clicks -->
               <a
-                href="https://{{ host }}/logout?manual=1"
+                href="{{ host }}/logout?manual=1"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="btn btn-outline-primary btn-sm manual-logout-link"
@@ -83,7 +83,7 @@
     domains.forEach((host, index) => {
       // Per-request cache-buster
       const bust = Date.now().toString(36) + Math.random().toString(36).slice(2);
-      const url = `https://${host}/logout?t=${bust}`;
+      const url = `${host}/logout?t=${bust}`;
 
       fetch(url, {
         credentials: "include",
