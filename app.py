@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, request, make_response, render_template
 import logging
 import sys
@@ -21,7 +22,7 @@ NO_STORE_HEADERS = {
     "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, private",
     "Pragma": "no-cache",
     "Expires": "0",
-    # Only affects this origin, but harmless and useful for privacy
+    # Clear-Site-Data is the ONLY path-agnostic cookie deletion mechanism
     "Clear-Site-Data": '"cache","cookies","storage"',
     "Referrer-Policy": "no-referrer",
 }
@@ -30,34 +31,44 @@ NO_STORE_HEADERS = {
 @app.after_request
 def add_no_store(resp):
     for k, v in NO_STORE_HEADERS.items():
-        # Do not override if already set explicitly on the response
         resp.headers.setdefault(k, v)
     return resp
 
 
 @app.route("/")
 def conductor():
-    """Renders the conductor UI that triggers per-domain logout calls."""
+    """Render the conductor UI that triggers per-domain logout calls."""
     return render_template("conductor.html.j2", domains=DOMAINS)
 
 
 @app.route("/logout")
 def logout():
     """
-    Expires all cookies visible to this host by sending three variants:
-      1) Domain cookie for the parent eTLD+1 (e.g., .example.com)
-      2) Domain cookie for the exact host (e.g., app.example.com)
-      3) Host-only cookie (no Domain attribute)
-    Returns 205 Reset Content and strict no-store headers.
+    Logout endpoint with ZERO path special-casing.
+
+    Guarantees:
+    - HTTPS + Clear-Site-Data => full cookie deletion (path-agnostic, browser-managed)
+    - Set-Cookie deletions are best-effort fallback only
+
+    Important constraints (by design, not by choice):
+    - Cookies can only be deleted via Set-Cookie if name+domain+path match.
+    - There is NO wildcard or path-agnostic Set-Cookie deletion.
+    - Therefore we ONLY delete Path=/ cookies and rely on Clear-Site-Data
+      for full correctness.
     """
     host = request.host.split(":")[0]
     parts = host.split(".")
     parent_domain = "." + ".".join(parts[-2:]) if len(parts) >= 2 else host
 
+    scheme = request.headers.get("X-Forwarded-Proto", request.scheme)
+    is_https = scheme == "https"
+
     if DEBUG:
         logger.debug(f"Incoming host: {host}")
-        logger.debug(f"Derived parent domain for cookie deletion: {parent_domain}")
+        logger.debug(f"Derived parent domain: {parent_domain}")
+        logger.debug(f"Scheme: {scheme}")
 
+    # Extract cookie names visible to this request
     cookie_header = request.headers.get("Cookie", "")
     cookie_names = []
     for part in cookie_header.split(";"):
@@ -69,19 +80,16 @@ def logout():
     if DEBUG:
         logger.debug(f"Cookies to expire: {cookie_names}")
 
-    # 205 = Reset Content (signals the client that the view should be reset)
+    # 205 Reset Content signals the browser to reset the view
     response = make_response("You have been logged out.", 205)
-    # Enforce anti-cache headers explicitly on this endpoint
+
+    # Enforce no-store headers explicitly
     for k, v in NO_STORE_HEADERS.items():
         response.headers[k] = v
 
+    # Best-effort Set-Cookie deletion (Path=/ only, NO special cases)
     for name in cookie_names:
-        if DEBUG:
-            logger.debug(f"Expiring cookie: {name} on parent domain {parent_domain}")
-            logger.debug(f"Expiring cookie: {name} on subdomain {host}")
-            logger.debug(f"Expiring cookie: {name} without domain (host-only)")
-
-        # Delete cookie on parent domain
+        # Parent domain
         response.set_cookie(
             key=name,
             value="",
@@ -89,22 +97,11 @@ def logout():
             max_age=0,
             domain=parent_domain,
             path="/",
-            secure=True,
+            secure=is_https,
             httponly=True,
-        )
-        response.set_cookie(
-            key=name,
-            value="",
-            expires=0,
-            max_age=0,
-            domain=parent_domain,
-            path="/",
-            secure=True,
-            httponly=True,
-            samesite="None",
         )
 
-        # Delete cookie on the exact host
+        # Exact host
         response.set_cookie(
             key=name,
             value="",
@@ -112,40 +109,19 @@ def logout():
             max_age=0,
             domain=host,
             path="/",
-            secure=True,
+            secure=is_https,
             httponly=True,
-        )
-        response.set_cookie(
-            key=name,
-            value="",
-            expires=0,
-            max_age=0,
-            domain=host,
-            path="/",
-            secure=True,
-            httponly=True,
-            samesite="None",
         )
 
-        # Delete host-only cookie (no Domain attribute)
+        # Host-only (no Domain attribute)
         response.set_cookie(
             key=name,
             value="",
             expires=0,
             max_age=0,
             path="/",
-            secure=True,
+            secure=is_https,
             httponly=True,
-        )
-        response.set_cookie(
-            key=name,
-            value="",
-            expires=0,
-            max_age=0,
-            path="/",
-            secure=True,
-            httponly=True,
-            samesite="None",
         )
 
     return response
@@ -153,4 +129,5 @@ def logout():
 
 if __name__ == "__main__":
     # Development only; use Gunicorn in production
-    app.run(host="0.0.0.0", port=8000)
+    port = int(os.getenv("LOGOUT_PORT", "8000"))
+    app.run(host="0.0.0.0", port=port)
