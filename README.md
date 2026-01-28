@@ -3,62 +3,138 @@
 
 
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+```md
+# Universal Logout 🍪
+
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
 ---
 
 ## Overview
 
-Managing logout across multiple applications integrated via OIDC can be tricky — especially when using nginx as a reverse proxy.  
-This project, **Universal Logout**, provides a centralized logout proxy service that solves the common problem:
+Logging out across multiple OIDC-connected applications is hard because **sessions and cookies are origin-bound**.
+Universal Logout provides a central **Front Channel Logout** endpoint (e.g. for Keycloak) that triggers per-domain logout calls and applies browser-safe cache/cookie clearing headers.
 
-> ❌ *How do you reliably log out a user from **all** connected apps with a single logout action?*
-
-Many setups struggle with this because nginx and typical OIDC clients don’t easily support coordinated logout flows spanning multiple services.
+This repository also includes **E2E tests** (Playwright) to validate behavior across **Chromium, Firefox, and WebKit**.
 
 ---
 
-## What does it do?
+## What exactly gets deleted?
 
-Universal Logout acts as a **dedicated logout proxy** that:
+Universal Logout uses **two mechanisms**:
 
-- Receives logout requests from your Identity Provider (e.g. Keycloak) via **Front Channel Logout**.
-- Iterates over a configurable list of subdomains/apps.
-- Performs logout requests on each app’s `/logout` endpoint in the background.
-- Provides a friendly UI status page to monitor logout progress.
-- Handles cookie clearing on each domain to ensure sessions are fully invalidated.
+1. **Clear-Site-Data (browser-managed, path-agnostic)**
+2. **Set-Cookie expirations (server-managed, best-effort, path-sensitive)**
 
-This enables a **unified, service-wide logout experience** for users in complex OIDC environments.
+### 1) Clear-Site-Data (primary mechanism)
+
+Every response includes:
+
+```
+
+Clear-Site-Data: "cache","cookies","storage"
+
+```
+
+**On HTTPS**, modern browsers are expected to honor this header and clear:
+
+- cookies for the current origin
+- storage (localStorage/sessionStorage/IndexedDB)
+- cache
+
+✅ **This is the only path-agnostic and wildcard-like deletion mechanism available in browsers.**
+
+### 2) Set-Cookie expirations (fallback / best-effort)
+
+In addition, `/logout` expires cookies via `Set-Cookie` for:
+
+- the derived parent domain (eTLD+1)
+- the exact host
+- host-only cookies (no Domain attribute)
+
+However:
+
+- **Set-Cookie can only delete cookies if `name + domain + path` match.**
+- There is **no wildcard path deletion** with Set-Cookie.
+
+So Universal Logout **only expires cookies for `Path=/`** as a best-effort fallback.
 
 ---
 
-## Why?
+## HTTPS vs HTTP behavior (important)
 
-Because logging out a user from multiple apps behind nginx is not straightforward:  
-- Cookies are domain-specific.  
-- Sessions are often managed locally per app.  
-- OIDC logout coordination requires all clients to participate properly.
+### ✅ HTTPS (recommended / correct mode)
 
-Universal Logout solves these challenges elegantly by providing a **single logout endpoint** that proxies and orchestrates logout calls.
+When Universal Logout is served via **HTTPS**:
+
+- **Clear-Site-Data** is processed by browsers reliably (in practice: Chromium/Firefox/WebKit)
+- cookies + storage are cleared **fully** for the current origin
+- Set-Cookie expirations are applied as additional best-effort cleanup
+
+**Result on HTTPS:**
+- ✅ Cookies are reliably cleared (browser-managed)
+- ✅ Storage is cleared
+- ✅ Works cross-browser (validated via E2E tests)
+
+### ⚠️ HTTP (best-effort only, not guaranteed)
+
+When served via **HTTP**:
+
+- Browsers may **ignore Clear-Site-Data** (varies by engine and policy)
+- You fall back to Set-Cookie expirations only
+- Since Set-Cookie deletion is **path-sensitive**, cookies set on paths like `/api` may remain
+
+**Result on HTTP:**
+- ❌ Clear-Site-Data may be ignored
+- ⚠️ Only cookies visible to the request and matching `Path=/` are deleted best-effort
+- ⚠️ Cookies on other paths (e.g. `/api`) and some host-only/domain variants may remain depending on how they were set
+
+**Bottom line:** HTTP logout is **not a security contract**. If you need reliable cleanup, use HTTPS.
 
 ---
 
-## Features ✨
+## What `/logout` does
 
-- Simple Flask-based logout proxy with minimal dependencies.  
-- Configurable logout domains via environment variables.  
-- Detailed logout status UI with live progress updates.  
-- Works seamlessly as the Front Channel Logout URL for Keycloak or other IdPs.  
-- Docker-ready with an example Dockerfile and nginx proxy snippet.
+`GET /logout`:
+
+- returns **205 Reset Content** (suggests the browser should reset the view)
+- sends strict anti-cache headers
+- always sends `Clear-Site-Data: "cache","cookies","storage"`
+- additionally sends best-effort `Set-Cookie` expirations (Path=/ only)
 
 ---
 
 ## Usage
 
-1. Configure your logout domains in `.env` via `LOGOUT_DOMAINS=app1.example.com,app2.example.com,...`  
-2. Deploy the logout proxy service (e.g. with Docker).  
-3. Set the logout proxy URL as the **Front Channel Logout URL** in your Keycloak realm settings.  
-4. Make sure all apps expose a `/logout` endpoint that clears sessions/cookies properly.  
-5. Enjoy unified logout across all your OIDC-integrated apps!
+1. Configure your logout domains in `.env`, e.g.:
+
+```
+
+LOGOUT_DOMAINS=[https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com](https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com)
+
+```
+
+2. Deploy the logout proxy (Docker/Gunicorn).
+
+3. Configure this service URL as **Front Channel Logout URL** in your IdP (e.g. Keycloak).
+
+4. Ensure each application has a `/logout` endpoint that invalidates its own session.
+
+---
+
+## E2E Tests
+
+This repository includes a Playwright-based E2E suite validating:
+
+- Clear-Site-Data behavior on HTTP vs HTTPS
+- Set-Cookie deletion behavior
+- Combined strategy behavior across Chromium/Firefox/WebKit
+
+Run:
+
+```bash
+make test-e2e
+```
 
 ---
 
@@ -71,7 +147,7 @@ This project is licensed under the **MIT License** — see [LICENSE](./LICENSE) 
 ## Author & Project Info
 
 Developed by **Kevin Veen-Birkenbach** ([veen.world](https://veen.world))  
-As part of the [CyMaIS](https://cymais.cloud) project — aiming to provide a unified, service-spanning logout for OIDC-connected applications.
+As part of the [Infinito.Nexus](https://infinito.nexus) project — aiming to provide a unified, service-spanning logout for OIDC-connected applications.
 
 ---
 
