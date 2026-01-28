@@ -1,0 +1,143 @@
+# -------------------------
+# HTTP (port 80)
+# -------------------------
+
+# app.test.local + domain.test.local -> Cookie Lab + logout endpoints
+server {
+  listen 80;
+  server_name app.test.local domain.test.local;
+
+  location / {
+    proxy_pass http://cookie-lab:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # Clear-Site-Data endpoints (served by nginx directly)
+  location = /logout-csd {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    add_header Cache-Control "no-store" always;
+    return 200 "logout-csd (http)\n";
+  }
+
+  location = /logout-setcookie {
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    add_header Cache-Control "no-store" always;
+  }
+
+  location = /logout-combined {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    add_header Cache-Control "no-store" always;
+  }
+}
+
+# logout.test.local -> also provide the same endpoints (so tests can call logout.*)
+server {
+  listen 80;
+  server_name logout.test.local;
+
+  location = /logout-csd {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    add_header Cache-Control "no-store" always;
+    return 200 "logout-csd (http)\n";
+  }
+
+  location = /logout-setcookie {
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    add_header Cache-Control "no-store" always;
+  }
+
+  location = /logout-combined {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    add_header Cache-Control "no-store" always;
+  }
+
+  # For anything else, just return 404 (explicit)
+  location / {
+    return 404 "not found\n";
+  }
+}
+
+# -------------------------
+# HTTPS (port 443)
+# -------------------------
+
+# app.test.local + domain.test.local -> Cookie Lab + logout endpoints
+server {
+  listen 443 ssl;
+  server_name app.test.local domain.test.local;
+
+  ssl_certificate     /etc/nginx/certs/tls.crt;
+  ssl_certificate_key /etc/nginx/certs/tls.key;
+
+  location / {
+    proxy_pass http://cookie-lab:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+
+  location = /logout-csd {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    add_header Cache-Control "no-store" always;
+    return 200 "logout-csd (https)\n";
+  }
+
+  location = /logout-setcookie {
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    add_header Cache-Control "no-store" always;
+  }
+
+  location = /logout-combined {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    add_header Cache-Control "no-store" always;
+  }
+}
+
+# logout.test.local -> also provide the same endpoints (so tests can call logout.*)
+server {
+  listen 443 ssl;
+  server_name logout.test.local;
+
+  ssl_certificate     /etc/nginx/certs/tls.crt;
+  ssl_certificate_key /etc/nginx/certs/tls.key;
+
+  location = /logout-csd {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    add_header Cache-Control "no-store" always;
+    return 200 "logout-csd (https)\n";
+  }
+
+  location = /logout-setcookie {
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    add_header Cache-Control "no-store" always;
+  }
+
+  location = /logout-combined {
+    add_header Clear-Site-Data '"cache","cookies","storage"' always;
+    proxy_pass http://cookie-lab:8000/logout-setcookie;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    add_header Cache-Control "no-store" always;
+  }
+
+  location / {
+    return 404 "not found\n";
+  }
+}

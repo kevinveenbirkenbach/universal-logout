@@ -1,0 +1,41 @@
+services:
+  cookie-lab:
+    build:
+      context: ./cookie-lab
+    container_name: e2e-cookie-lab
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: e2e-nginx
+    depends_on:
+      - cookie-lab
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx.conf.example:/etc/nginx/conf.d/default.conf:ro
+      - ./certs/tls.crt:/etc/nginx/certs/tls.crt:ro
+      - ./certs/tls.key:/etc/nginx/certs/tls.key:ro
+    networks:
+      default:
+        aliases:
+          - app.test.local
+          - logout.test.local
+          - domain.test.local
+
+  runner:
+    build:
+      context: ./runner
+    container_name: e2e-runner
+    depends_on:
+      - nginx
+    environment:
+      # inside the docker network nginx listens on 80/443
+      BASE_HTTP: "http://app.test.local"
+      BASE_HTTPS: "https://app.test.local"
+      LOGOUT_HTTP: "http://logout.test.local"
+      LOGOUT_HTTPS: "https://logout.test.local"
+      PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
+    # no entrypoint/command override -> uses Dockerfile CMD ["npm","test"]
