@@ -102,9 +102,7 @@ When served via **HTTP**:
 1. Configure your logout domains in `.env`, e.g.:
 
 ```
-
-LOGOUT_DOMAINS=[https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com](https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com)
-
+LOGOUT_DOMAINS=https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com
 ```
 
 2. Deploy the logout proxy (Docker/Gunicorn).
@@ -112,6 +110,38 @@ LOGOUT_DOMAINS=[https://app.example.com,https://nextcloud.example.com,https://ma
 3. Configure this service URL as **Front Channel Logout URL** in your IdP (e.g. Keycloak).
 
 4. Ensure each application has a `/logout` endpoint that invalidates its own session.
+
+---
+
+## Docker Image
+
+The image is published to GitHub Container Registry:
+
+`ghcr.io/kevinveenbirkenbach/universal-logout`
+
+Tags:
+- `latest` is pushed on successful `main` builds.
+- A Git tag is pushed only when the current commit is tagged.
+
+### Docker Run
+
+```bash
+docker run --rm -p 8000:8000 \
+  -e LOGOUT_DOMAINS="https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com" \
+  ghcr.io/kevinveenbirkenbach/universal-logout:latest
+```
+
+### Docker Compose
+
+```yaml
+services:
+  universal-logout:
+    image: ghcr.io/kevinveenbirkenbach/universal-logout:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - LOGOUT_DOMAINS=https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com
+```
 
 ---
 

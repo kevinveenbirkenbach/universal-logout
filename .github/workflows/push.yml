@@ -1,0 +1,23 @@
+name: Push (Coordinator)
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: push-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Run E2E tests
+    uses: ./.github/workflows/e2e.yml
+
+  build:
+    name: Build and publish image
+    needs: e2e
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: read
+      packages: write
