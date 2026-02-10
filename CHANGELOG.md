@@ -1,3 +1,8 @@
+## [1.2.0] - 2026-02-10
+
+* Automated release.
+
+
 ## [1.1.0] - 2026-01-28
 
 * * Reliable HTTPS logout verified across Chromium, Firefox, and WebKit
