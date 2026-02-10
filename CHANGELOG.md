@@ -1,7 +1,6 @@
 ## [1.2.0] - 2026-02-10
 
-* Automated release.
-
+* This release introduces separated CI workflows and automatically publishes the Docker image with `latest` and an optional Git tag after successful E2E tests.
 
 ## [1.1.0] - 2026-01-28
 
