@@ -48,13 +48,19 @@ def logout():
 
     Guarantees:
     - HTTPS + Clear-Site-Data => full cookie deletion (path-agnostic, browser-managed)
-    - Set-Cookie deletions are best-effort fallback only
+    - HTTP (or any non-secure context, e.g. http://.onion outside Tor Browser)
+      => Set-Cookie deletions still clear Path=/ cookies, because this endpoint
+      returns a committed 200 document. A 205 (or any non-committed navigation
+      response) makes the browser drop Set-Cookie on a top-level navigation, so
+      the plain-http fallback would never fire when a user navigates straight to
+      /logout. 200 keeps both the conductor's fetch() sweep and direct
+      navigation working.
 
     Important constraints (by design, not by choice):
     - Cookies can only be deleted via Set-Cookie if name+domain+path match.
     - There is NO wildcard or path-agnostic Set-Cookie deletion.
     - Therefore we ONLY delete Path=/ cookies and rely on Clear-Site-Data
-      for full correctness.
+      for full correctness in secure contexts.
     """
     host = request.host.split(":")[0]
     parts = host.split(".")
@@ -80,8 +86,10 @@ def logout():
     if DEBUG:
         logger.debug(f"Cookies to expire: {cookie_names}")
 
-    # 205 Reset Content signals the browser to reset the view
-    response = make_response("You have been logged out.", 205)
+    # 200 (committed document) so the browser applies the Set-Cookie deletions
+    # below even on a direct top-level navigation to /logout — a 205 would be
+    # dropped by the navigation and defeat the plain-http fallback.
+    response = make_response("You have been logged out.", 200)
 
     # Enforce no-store headers explicitly
     for k, v in NO_STORE_HEADERS.items():
