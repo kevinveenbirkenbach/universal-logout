@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-logout"
+version = "1.2.0"
+description = "Front-channel logout conductor: sweeps every configured domain and reports each result to the page that frames it"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=2.0",
+    "gunicorn>=20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools]
+py-modules = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]

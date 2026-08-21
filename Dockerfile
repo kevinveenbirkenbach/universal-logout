@@ -10,11 +10,10 @@ ENV LOGOUT_PORT=${LOGOUT_PORT}
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml README.md app.py ./
+RUN pip install --no-cache-dir .
 
 # Copy application code
-COPY app.py ./
 COPY templates/ ./templates/
 
 # Expose the logout service port dynamically

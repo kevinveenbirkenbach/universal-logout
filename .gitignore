@@ -1,1 +1,10 @@
 .env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+tests/e2e/runner/node_modules/
+tests/e2e/runner/test-results/
+tests/e2e/runner/playwright-report/
