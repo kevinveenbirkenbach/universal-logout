@@ -3,8 +3,39 @@ from flask import Flask, request, make_response, render_template
 import logging
 import sys
 import os
+from pathlib import Path
+
+import yaml
 
 app = Flask(__name__, template_folder="templates")
+
+TRANSLATIONS = yaml.safe_load(
+    (Path(__file__).resolve().parent / "translations.yml").read_text(encoding="utf-8")
+)
+FALLBACK_LANG = "en"
+
+
+def negotiate_language(accept_languages, requested=None):
+    """Pick a catalogue key from ?lang= or the Accept-Language header.
+
+    :param accept_languages: werkzeug ``LanguageAccept`` from the request
+    :param requested: explicit override, e.g. the ``lang`` query parameter
+    :return: a key of ``TRANSLATIONS``; ``FALLBACK_LANG`` when nothing matches
+    """
+    for candidate in (requested, ):
+        if candidate and candidate.split("-")[0].lower() in TRANSLATIONS:
+            return candidate.split("-")[0].lower()
+
+    match = accept_languages.best_match(list(TRANSLATIONS))
+    if match:
+        return match
+
+    for tag, _quality in accept_languages:
+        base = tag.split("-")[0].lower()
+        if base in TRANSLATIONS:
+            return base
+
+    return FALLBACK_LANG
 
 # Load domains from an env var (comma-separated)
 DOMAINS = [d.strip() for d in os.getenv("LOGOUT_DOMAINS", "").split(",") if d.strip()]
@@ -38,7 +69,15 @@ def add_no_store(resp):
 @app.route("/")
 def conductor():
     """Render the conductor UI that triggers per-domain logout calls."""
-    return render_template("conductor.html.j2", domains=DOMAINS)
+    lang = negotiate_language(request.accept_languages, request.args.get("lang"))
+    catalogue = TRANSLATIONS[lang]
+    return render_template(
+        "conductor.html.j2",
+        domains=DOMAINS,
+        t=catalogue,
+        lang=lang,
+        text_direction=catalogue["dir"],
+    )
 
 
 @app.route("/logout")

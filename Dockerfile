@@ -14,6 +14,7 @@ COPY pyproject.toml README.md app.py ./
 RUN pip install --no-cache-dir .
 
 # Copy application code
+COPY translations.yml ./
 COPY templates/ ./templates/
 
 # Expose the logout service port dynamically

@@ -1,0 +1,450 @@
+en:
+  dir: ltr
+  title: Logout
+  heading: Logout
+  lead: Signing you out of all services…
+  warn_iframe: This page is meant to be loaded by your identity provider inside an iframe.
+  warn_configure: Configure this URL as the front-channel logout URL in your realm settings.
+  th_service: Service
+  th_status: Status
+  th_manual: Manual logout
+  st_pending: Signing out…
+  st_done: Signed out
+  st_failed: Failed
+  manual: Sign out manually
+  source: Source code
+zh:
+  dir: ltr
+  title: 退出登录
+  heading: 退出登录
+  lead: 正在从所有服务中退出登录…
+  warn_iframe: 此页面应由您的身份提供商在 iframe 中加载。
+  warn_configure: 请在领域设置中将此网址配置为前端通道注销网址。
+  th_service: 服务
+  th_status: 状态
+  th_manual: 手动退出
+  st_pending: 正在退出…
+  st_done: 已退出
+  st_failed: 失败
+  manual: 手动退出登录
+  source: 源代码
+hi:
+  dir: ltr
+  title: लॉग आउट
+  heading: लॉग आउट
+  lead: आपको सभी सेवाओं से लॉग आउट किया जा रहा है…
+  warn_iframe: यह पृष्ठ आपके पहचान प्रदाता द्वारा iframe में लोड किया जाना चाहिए।
+  warn_configure: अपनी रीयल्म सेटिंग्स में इस URL को फ्रंट-चैनल लॉगआउट URL के रूप में कॉन्फ़िगर करें।
+  th_service: सेवा
+  th_status: स्थिति
+  th_manual: मैन्युअल लॉगआउट
+  st_pending: लॉग आउट हो रहा है…
+  st_done: लॉग आउट हो गया
+  st_failed: विफल
+  manual: मैन्युअल रूप से लॉग आउट करें
+  source: स्रोत कोड
+es:
+  dir: ltr
+  title: Cerrar sesión
+  heading: Cerrar sesión
+  lead: Cerrando tu sesión en todos los servicios…
+  warn_iframe: Esta página debe cargarla tu proveedor de identidad dentro de un iframe.
+  warn_configure: Configura esta URL como URL de cierre de sesión de canal frontal en los ajustes de tu dominio.
+  th_service: Servicio
+  th_status: Estado
+  th_manual: Cierre manual
+  st_pending: Cerrando sesión…
+  st_done: Sesión cerrada
+  st_failed: Error
+  manual: Cerrar sesión manualmente
+  source: Código fuente
+ar:
+  dir: rtl
+  title: تسجيل الخروج
+  heading: تسجيل الخروج
+  lead: جارٍ تسجيل خروجك من جميع الخدمات…
+  warn_iframe: من المفترض أن يقوم مزوّد الهوية بتحميل هذه الصفحة داخل إطار iframe.
+  warn_configure: اضبط هذا الرابط كرابط تسجيل خروج القناة الأمامية في إعدادات النطاق.
+  th_service: الخدمة
+  th_status: الحالة
+  th_manual: خروج يدوي
+  st_pending: جارٍ تسجيل الخروج…
+  st_done: تم تسجيل الخروج
+  st_failed: فشل
+  manual: تسجيل الخروج يدويًا
+  source: الشيفرة المصدرية
+fr:
+  dir: ltr
+  title: Déconnexion
+  heading: Déconnexion
+  lead: Déconnexion de tous les services en cours…
+  warn_iframe: Cette page doit être chargée par votre fournisseur d’identité dans une iframe.
+  warn_configure: Configurez cette URL comme URL de déconnexion frontale dans les paramètres de votre realm.
+  th_service: Service
+  th_status: Statut
+  th_manual: Déconnexion manuelle
+  st_pending: Déconnexion…
+  st_done: Déconnecté
+  st_failed: Échec
+  manual: Se déconnecter manuellement
+  source: Code source
+bn:
+  dir: ltr
+  title: লগ আউট
+  heading: লগ আউট
+  lead: আপনাকে সব পরিষেবা থেকে লগ আউট করা হচ্ছে…
+  warn_iframe: এই পৃষ্ঠাটি আপনার পরিচয় সরবরাহকারীর দ্বারা iframe-এ লোড হওয়ার কথা।
+  warn_configure: আপনার রিয়েলম সেটিংসে এই URL-টি ফ্রন্ট-চ্যানেল লগআউট URL হিসেবে সেট করুন।
+  th_service: পরিষেবা
+  th_status: অবস্থা
+  th_manual: ম্যানুয়াল লগআউট
+  st_pending: লগ আউট হচ্ছে…
+  st_done: লগ আউট হয়েছে
+  st_failed: ব্যর্থ
+  manual: নিজে লগ আউট করুন
+  source: সোর্স কোড
+pt:
+  dir: ltr
+  title: Terminar sessão
+  heading: Terminar sessão
+  lead: A terminar a sua sessão em todos os serviços…
+  warn_iframe: Esta página deve ser carregada pelo seu fornecedor de identidade dentro de um iframe.
+  warn_configure: Configure este URL como URL de logout de canal frontal nas definições do seu realm.
+  th_service: Serviço
+  th_status: Estado
+  th_manual: Logout manual
+  st_pending: A terminar sessão…
+  st_done: Sessão terminada
+  st_failed: Falhou
+  manual: Terminar sessão manualmente
+  source: Código-fonte
+ru:
+  dir: ltr
+  title: Выход
+  heading: Выход
+  lead: Выполняется выход из всех сервисов…
+  warn_iframe: Эта страница должна загружаться вашим поставщиком удостоверений внутри iframe.
+  warn_configure: Укажите этот URL как URL выхода через фронтальный канал в настройках realm.
+  th_service: Сервис
+  th_status: Статус
+  th_manual: Ручной выход
+  st_pending: Выполняется выход…
+  st_done: Выход выполнен
+  st_failed: Ошибка
+  manual: Выйти вручную
+  source: Исходный код
+ur:
+  dir: rtl
+  title: لاگ آؤٹ
+  heading: لاگ آؤٹ
+  lead: آپ کو تمام سروسز سے لاگ آؤٹ کیا جا رہا ہے…
+  warn_iframe: یہ صفحہ آپ کے شناختی فراہم کنندہ کے ذریعے iframe میں لوڈ ہونا چاہیے۔
+  warn_configure: اپنی realm سیٹنگز میں اس URL کو فرنٹ چینل لاگ آؤٹ URL کے طور پر ترتیب دیں۔
+  th_service: سروس
+  th_status: حالت
+  th_manual: دستی لاگ آؤٹ
+  st_pending: لاگ آؤٹ ہو رہا ہے…
+  st_done: لاگ آؤٹ ہو گیا
+  st_failed: ناکام
+  manual: دستی طور پر لاگ آؤٹ کریں
+  source: سورس کوڈ
+id:
+  dir: ltr
+  title: Keluar
+  heading: Keluar
+  lead: Mengeluarkan Anda dari semua layanan…
+  warn_iframe: Halaman ini seharusnya dimuat oleh penyedia identitas Anda di dalam iframe.
+  warn_configure: Atur URL ini sebagai URL logout front-channel di pengaturan realm Anda.
+  th_service: Layanan
+  th_status: Status
+  th_manual: Keluar manual
+  st_pending: Sedang keluar…
+  st_done: Sudah keluar
+  st_failed: Gagal
+  manual: Keluar secara manual
+  source: Kode sumber
+de:
+  dir: ltr
+  title: Abmelden
+  heading: Abmelden
+  lead: Sie werden von allen Diensten abgemeldet…
+  warn_iframe: Diese Seite soll von Ihrem Identitätsanbieter in einem Iframe geladen werden.
+  warn_configure: Tragen Sie diese URL in den Realm-Einstellungen als Front-Channel-Logout-URL ein.
+  th_service: Dienst
+  th_status: Status
+  th_manual: Manuelle Abmeldung
+  st_pending: Wird abgemeldet…
+  st_done: Abgemeldet
+  st_failed: Fehlgeschlagen
+  manual: Manuell abmelden
+  source: Quellcode
+ja:
+  dir: ltr
+  title: ログアウト
+  heading: ログアウト
+  lead: すべてのサービスからログアウトしています…
+  warn_iframe: このページは ID プロバイダーによって iframe 内で読み込まれることを想定しています。
+  warn_configure: レルム設定でこの URL をフロントチャネルログアウト URL として設定してください。
+  th_service: サービス
+  th_status: 状態
+  th_manual: 手動ログアウト
+  st_pending: ログアウト中…
+  st_done: ログアウト済み
+  st_failed: 失敗
+  manual: 手動でログアウト
+  source: ソースコード
+sw:
+  dir: ltr
+  title: Ondoka
+  heading: Ondoka
+  lead: Unaondolewa kwenye huduma zote…
+  warn_iframe: Ukurasa huu unapaswa kupakiwa na mtoa utambulisho wako ndani ya iframe.
+  warn_configure: Weka URL hii kama URL ya kuondoka ya front-channel katika mipangilio ya realm yako.
+  th_service: Huduma
+  th_status: Hali
+  th_manual: Kuondoka kwa mkono
+  st_pending: Inaondoka…
+  st_done: Umeondoka
+  st_failed: Imeshindwa
+  manual: Ondoka mwenyewe
+  source: Msimbo wa chanzo
+mr:
+  dir: ltr
+  title: लॉग आउट
+  heading: लॉग आउट
+  lead: तुम्हाला सर्व सेवांमधून लॉग आउट केले जात आहे…
+  warn_iframe: हे पृष्ठ तुमच्या ओळख पुरवठादाराने iframe मध्ये लोड करणे अपेक्षित आहे.
+  warn_configure: तुमच्या रिअल्म सेटिंग्जमध्ये ही URL फ्रंट-चॅनेल लॉगआउट URL म्हणून सेट करा.
+  th_service: सेवा
+  th_status: स्थिती
+  th_manual: मॅन्युअल लॉगआउट
+  st_pending: लॉग आउट होत आहे…
+  st_done: लॉग आउट झाले
+  st_failed: अयशस्वी
+  manual: स्वतः लॉग आउट करा
+  source: स्रोत कोड
+te:
+  dir: ltr
+  title: లాగ్ అవుట్
+  heading: లాగ్ అవుట్
+  lead: మిమ్మల్ని అన్ని సేవల నుండి లాగ్ అవుట్ చేస్తోంది…
+  warn_iframe: ఈ పేజీని మీ గుర్తింపు ప్రదాత iframe లోపల లోడ్ చేయాలి.
+  warn_configure: మీ రియల్మ్ సెట్టింగ్‌లలో ఈ URL ను ఫ్రంట్-ఛానెల్ లాగౌట్ URL గా సెట్ చేయండి.
+  th_service: సేవ
+  th_status: స్థితి
+  th_manual: మాన్యువల్ లాగౌట్
+  st_pending: లాగ్ అవుట్ అవుతోంది…
+  st_done: లాగ్ అవుట్ అయ్యింది
+  st_failed: విఫలమైంది
+  manual: మీరే లాగ్ అవుట్ చేయండి
+  source: సోర్స్ కోడ్
+tr:
+  dir: ltr
+  title: Oturumu kapat
+  heading: Oturumu kapat
+  lead: Tüm hizmetlerdeki oturumunuz kapatılıyor…
+  warn_iframe: Bu sayfanın kimlik sağlayıcınız tarafından bir iframe içinde yüklenmesi gerekir.
+  warn_configure: Realm ayarlarınızda bu adresi ön kanal oturum kapatma adresi olarak tanımlayın.
+  th_service: Hizmet
+  th_status: Durum
+  th_manual: Elle kapatma
+  st_pending: Oturum kapatılıyor…
+  st_done: Oturum kapatıldı
+  st_failed: Başarısız
+  manual: Oturumu elle kapat
+  source: Kaynak kodu
+ta:
+  dir: ltr
+  title: வெளியேறு
+  heading: வெளியேறு
+  lead: அனைத்து சேவைகளிலிருந்தும் வெளியேற்றப்படுகிறீர்கள்…
+  warn_iframe: இந்தப் பக்கம் உங்கள் அடையாள வழங்குநரால் iframe இல் ஏற்றப்பட வேண்டும்.
+  warn_configure: உங்கள் realm அமைப்புகளில் இந்த URL ஐ முன்-சேனல் வெளியேறும் URL ஆக அமைக்கவும்.
+  th_service: சேவை
+  th_status: நிலை
+  th_manual: கைமுறை வெளியேற்றம்
+  st_pending: வெளியேறுகிறது…
+  st_done: வெளியேறியது
+  st_failed: தோல்வி
+  manual: நீங்களே வெளியேறுங்கள்
+  source: மூலக் குறியீடு
+vi:
+  dir: ltr
+  title: Đăng xuất
+  heading: Đăng xuất
+  lead: Đang đăng xuất bạn khỏi tất cả dịch vụ…
+  warn_iframe: Trang này cần được nhà cung cấp danh tính tải trong một iframe.
+  warn_configure: Đặt URL này làm URL đăng xuất kênh trước trong cài đặt realm của bạn.
+  th_service: Dịch vụ
+  th_status: Trạng thái
+  th_manual: Đăng xuất thủ công
+  st_pending: Đang đăng xuất…
+  st_done: Đã đăng xuất
+  st_failed: Thất bại
+  manual: Tự đăng xuất
+  source: Mã nguồn
+ko:
+  dir: ltr
+  title: 로그아웃
+  heading: 로그아웃
+  lead: 모든 서비스에서 로그아웃하는 중…
+  warn_iframe: 이 페이지는 ID 공급자가 iframe 안에서 불러와야 합니다.
+  warn_configure: 렐름 설정에서 이 URL을 프런트 채널 로그아웃 URL로 지정하세요.
+  th_service: 서비스
+  th_status: 상태
+  th_manual: 수동 로그아웃
+  st_pending: 로그아웃 중…
+  st_done: 로그아웃됨
+  st_failed: 실패
+  manual: 직접 로그아웃
+  source: 소스 코드
+it:
+  dir: ltr
+  title: Disconnessione
+  heading: Disconnessione
+  lead: Disconnessione da tutti i servizi in corso…
+  warn_iframe: Questa pagina deve essere caricata dal tuo provider di identità dentro un iframe.
+  warn_configure: Imposta questo URL come URL di logout front-channel nelle impostazioni del realm.
+  th_service: Servizio
+  th_status: Stato
+  th_manual: Logout manuale
+  st_pending: Disconnessione…
+  st_done: Disconnesso
+  st_failed: Non riuscito
+  manual: Disconnettiti manualmente
+  source: Codice sorgente
+ha:
+  dir: ltr
+  title: Fita
+  heading: Fita
+  lead: Ana fitar da kai daga dukkan aiyuka…
+  warn_iframe: Ya kamata mai bayar da shaidarka ya loda wannan shafi cikin iframe.
+  warn_configure: Saita wannan adireshin a matsayin adireshin fita na front-channel a saitunan realm ɗinka.
+  th_service: Sabis
+  th_status: Matsayi
+  th_manual: Fita da hannu
+  st_pending: Ana fita…
+  st_done: An fita
+  st_failed: Ya kasa
+  manual: Fita da kanka
+  source: Lambar tushe
+th:
+  dir: ltr
+  title: ออกจากระบบ
+  heading: ออกจากระบบ
+  lead: กำลังออกจากระบบทุกบริการ…
+  warn_iframe: หน้านี้ควรถูกโหลดโดยผู้ให้บริการข้อมูลประจำตัวของคุณภายใน iframe
+  warn_configure: ตั้งค่า URL นี้เป็น URL ออกจากระบบแบบ front-channel ในการตั้งค่า realm ของคุณ
+  th_service: บริการ
+  th_status: สถานะ
+  th_manual: ออกจากระบบด้วยตนเอง
+  st_pending: กำลังออกจากระบบ…
+  st_done: ออกจากระบบแล้ว
+  st_failed: ล้มเหลว
+  manual: ออกจากระบบเอง
+  source: ซอร์สโค้ด
+gu:
+  dir: ltr
+  title: લૉગ આઉટ
+  heading: લૉગ આઉટ
+  lead: તમને બધી સેવાઓમાંથી લૉગ આઉટ કરવામાં આવે છે…
+  warn_iframe: આ પૃષ્ઠ તમારા ઓળખ પ્રદાતા દ્વારા iframe માં લોડ થવું જોઈએ.
+  warn_configure: તમારી realm સેટિંગ્સમાં આ URL ને ફ્રન્ટ-ચેનલ લૉગઆઉટ URL તરીકે સેટ કરો.
+  th_service: સેવા
+  th_status: સ્થિતિ
+  th_manual: મેન્યુઅલ લૉગઆઉટ
+  st_pending: લૉગ આઉટ થઈ રહ્યું છે…
+  st_done: લૉગ આઉટ થયું
+  st_failed: નિષ્ફળ
+  manual: જાતે લૉગ આઉટ કરો
+  source: સોર્સ કોડ
+fa:
+  dir: rtl
+  title: خروج
+  heading: خروج
+  lead: در حال خروج شما از همهٔ سرویس‌ها…
+  warn_iframe: این صفحه باید توسط ارائه‌دهندهٔ هویت شما درون یک iframe بارگذاری شود.
+  warn_configure: این نشانی را در تنظیمات realm به‌عنوان نشانی خروج کانال جلویی تنظیم کنید.
+  th_service: سرویس
+  th_status: وضعیت
+  th_manual: خروج دستی
+  st_pending: در حال خروج…
+  st_done: خارج شد
+  st_failed: ناموفق
+  manual: خروج دستی
+  source: کد منبع
+pl:
+  dir: ltr
+  title: Wyloguj
+  heading: Wyloguj
+  lead: Trwa wylogowywanie ze wszystkich usług…
+  warn_iframe: Ta strona powinna być ładowana przez dostawcę tożsamości wewnątrz ramki iframe.
+  warn_configure: Ustaw ten adres jako adres wylogowania front-channel w ustawieniach realm.
+  th_service: Usługa
+  th_status: Stan
+  th_manual: Ręczne wylogowanie
+  st_pending: Wylogowywanie…
+  st_done: Wylogowano
+  st_failed: Niepowodzenie
+  manual: Wyloguj ręcznie
+  source: Kod źródłowy
+uk:
+  dir: ltr
+  title: Вихід
+  heading: Вихід
+  lead: Виконується вихід з усіх сервісів…
+  warn_iframe: Цю сторінку має завантажувати ваш постачальник ідентифікації всередині iframe.
+  warn_configure: Вкажіть цю адресу як адресу виходу через фронтальний канал у налаштуваннях realm.
+  th_service: Сервіс
+  th_status: Стан
+  th_manual: Ручний вихід
+  st_pending: Виконується вихід…
+  st_done: Виконано вихід
+  st_failed: Помилка
+  manual: Вийти вручну
+  source: Вихідний код
+ms:
+  dir: ltr
+  title: Log keluar
+  heading: Log keluar
+  lead: Mengelog keluar anda daripada semua perkhidmatan…
+  warn_iframe: Halaman ini sepatutnya dimuatkan oleh pembekal identiti anda di dalam iframe.
+  warn_configure: Tetapkan URL ini sebagai URL log keluar saluran hadapan dalam tetapan realm anda.
+  th_service: Perkhidmatan
+  th_status: Status
+  th_manual: Log keluar manual
+  st_pending: Sedang log keluar…
+  st_done: Telah log keluar
+  st_failed: Gagal
+  manual: Log keluar sendiri
+  source: Kod sumber
+nl:
+  dir: ltr
+  title: Afmelden
+  heading: Afmelden
+  lead: Je wordt bij alle diensten afgemeld…
+  warn_iframe: Deze pagina hoort door je identiteitsprovider in een iframe geladen te worden.
+  warn_configure: Stel deze URL in als front-channel afmeld-URL in je realm-instellingen.
+  th_service: Dienst
+  th_status: Status
+  th_manual: Handmatig afmelden
+  st_pending: Bezig met afmelden…
+  st_done: Afgemeld
+  st_failed: Mislukt
+  manual: Handmatig afmelden
+  source: Broncode
+pa:
+  dir: ltr
+  title: ਲਾਗ ਆਉਟ
+  heading: ਲਾਗ ਆਉਟ
+  lead: ਤੁਹਾਨੂੰ ਸਾਰੀਆਂ ਸੇਵਾਵਾਂ ਤੋਂ ਲਾਗ ਆਉਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…
+  warn_iframe: ਇਹ ਪੰਨਾ ਤੁਹਾਡੇ ਪਛਾਣ ਪ੍ਰਦਾਤਾ ਵੱਲੋਂ iframe ਵਿੱਚ ਲੋਡ ਕੀਤਾ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ।
+  warn_configure: ਆਪਣੀਆਂ realm ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇਸ URL ਨੂੰ ਫਰੰਟ-ਚੈਨਲ ਲਾਗਆਉਟ URL ਵਜੋਂ ਸੈੱਟ ਕਰੋ।
+  th_service: ਸੇਵਾ
+  th_status: ਸਥਿਤੀ
+  th_manual: ਹੱਥੀਂ ਲਾਗਆਉਟ
+  st_pending: ਲਾਗ ਆਉਟ ਹੋ ਰਿਹਾ ਹੈ…
+  st_done: ਲਾਗ ਆਉਟ ਹੋ ਗਿਆ
+  st_failed: ਅਸਫਲ
+  manual: ਆਪ ਲਾਗ ਆਉਟ ਕਰੋ
+  source: ਸਰੋਤ ਕੋਡ

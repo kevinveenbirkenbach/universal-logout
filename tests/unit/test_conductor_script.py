@@ -21,6 +21,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE = REPO_ROOT / "templates" / "conductor.html.j2"
 PARENT_ORIGIN = "https://auth.example.test"
 DOMAINS = ["https://shop.example.test", "https://cloud.example.test"]
+LABEL_DONE = "Signed out"
+LABEL_FAILED = "Failed"
 
 DRIVER = textwrap.dedent(
     """
@@ -125,7 +127,7 @@ DRIVER = textwrap.dedent(
         const h = harness({ postThrows: true });
         await settle();
         assert.ok(
-          Object.values(h.cells).every((c) => c.textContent.includes("Logged out")),
+          Object.values(h.cells).every((c) => c.textContent.includes(process.argv[4])),
           "a refused postMessage must not derail the sweep or its table",
         );
       }
@@ -151,13 +153,30 @@ DRIVER = textwrap.dedent(
 )
 
 
+SUBSTITUTIONS = {
+    "domains": DOMAINS,
+    "st_done": LABEL_DONE,
+    "st_failed": LABEL_FAILED,
+}
+
+
+def _render(match: re.Match) -> str:
+    expression = match.group(0)
+    for needle, value in SUBSTITUTIONS.items():
+        if needle in expression:
+            return json.dumps(value)
+    raise AssertionError(
+        f"the conductor script grew an expression this test cannot render: {expression}"
+    )
+
+
 def _script() -> str:
     html = TEMPLATE.read_text()
     blocks = re.findall(r"<script>(.*?)</script>", html, flags=re.DOTALL)
     assert blocks, "no inline <script> block in the conductor template"
     body = "\n".join(blocks)
     body = re.sub(r"\{%.*?%\}", "", body, flags=re.DOTALL)
-    return re.sub(r"\{\{.*?\}\}", json.dumps(DOMAINS), body, flags=re.DOTALL)
+    return re.sub(r"\{\{.*?\}\}", _render, body, flags=re.DOTALL)
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not available in PATH")
@@ -168,7 +187,7 @@ def test_the_conductor_reports_its_sweep_to_the_framing_page(tmp_path):
     driver.write_text(DRIVER)
 
     proc = subprocess.run(
-        ["node", str(driver), str(script), PARENT_ORIGIN],
+        ["node", str(driver), str(script), PARENT_ORIGIN, LABEL_DONE],
         capture_output=True,
         text=True,
         check=False,
