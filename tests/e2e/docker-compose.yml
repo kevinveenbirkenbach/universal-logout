@@ -52,4 +52,8 @@ services:
       SWEPT_OK: "https://app.test.local"
       SWEPT_FAILING: "https://absent.test.local"
       PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
+      CATALOGUE: "/work/translations.yml"
+    volumes:
+      # the shipped catalogue itself, so the spec cannot drift from a copy
+      - ../../translations.yml:/work/translations.yml:ro
     # no entrypoint/command override -> uses Dockerfile CMD ["npm","test"]
