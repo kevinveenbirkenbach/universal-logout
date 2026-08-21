@@ -6,11 +6,22 @@ services:
     expose:
       - "8000"
 
+  logout:
+    build:
+      context: ../..
+    container_name: e2e-logout
+    environment:
+      LOGOUT_DOMAINS: "https://app.test.local,https://absent.test.local"
+      LOGOUT_PORT: "8000"
+    expose:
+      - "8000"
+
   nginx:
     image: nginx:1.27-alpine
     container_name: e2e-nginx
     depends_on:
       - cookie-lab
+      - logout
     ports:
       - "8080:80"
       - "8443:443"
@@ -37,5 +48,8 @@ services:
       BASE_HTTPS: "https://app.test.local"
       LOGOUT_HTTP: "http://logout.test.local"
       LOGOUT_HTTPS: "https://logout.test.local"
+      FRAME_HTTPS: "https://app.test.local/frame"
+      SWEPT_OK: "https://app.test.local"
+      SWEPT_FAILING: "https://absent.test.local"
       PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
     # no entrypoint/command override -> uses Dockerfile CMD ["npm","test"]

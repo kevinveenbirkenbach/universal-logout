@@ -3,6 +3,8 @@ import os
 
 app = Flask(__name__)
 
+CONDUCTOR_ORIGINS = {"https://logout.test.local", "http://logout.test.local"}
+
 DEBUG = os.getenv("DEBUG_COOKIE_LAB", "false").lower() in ("1", "true", "yes")
 
 
@@ -65,6 +67,62 @@ def whoami():
     """
     cookies = sorted(list(request.cookies.keys()))
     return jsonify({"host": request.host.split(":")[0], "cookies": cookies})
+
+
+@app.get("/logout")
+def logout():
+    """Sweep target for the conductor.
+
+    The conductor fetches this cross-origin with credentials, so the response
+    must name the conductor's origin explicitly - a wildcard is refused for
+    credentialed requests.
+    """
+    host = request.host.split(":")[0]
+    parent = _base_domain(host)
+
+    resp = make_response("logged out\n", 200)
+    origin = request.headers.get("Origin", "")
+    if origin in CONDUCTOR_ORIGINS:
+        resp.headers["Access-Control-Allow-Origin"] = origin
+        resp.headers["Access-Control-Allow-Credentials"] = "true"
+    resp.headers["Clear-Site-Data"] = '"cache","cookies","storage"'
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+
+    for name in sorted(request.cookies.keys()):
+        for domain in (None, host, parent):
+            resp.set_cookie(name, "", max_age=0, expires=0, path="/", domain=domain)
+
+    return resp
+
+
+@app.get("/frame")
+def frame():
+    """Stand in for Keycloak's logout page: frame the conductor, record reports.
+
+    ``iss`` is what Keycloak appends to the front-channel logout URL, and it is
+    where the conductor addresses its messages. The page keeps every report on
+    ``window.__reports`` so a test can read the whole conversation.
+    """
+    conductor = request.args.get("conductor", "https://logout.test.local/")
+    scheme = request.headers.get("X-Forwarded-Proto", request.scheme)
+    origin = f"{scheme}://{request.host}"
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>frame</title></head>
+<body>
+<h1 id="parent">parent</h1>
+<iframe id="conductor" src="{conductor}?iss={origin}/realms/x" style="width:600px;height:400px"></iframe>
+<script>
+window.__reports = [];
+window.__origins = [];
+window.addEventListener("message", function (event) {{
+  window.__origins.push(event.origin);
+  if (event.data && event.data.source === "universal-logout") {{
+    window.__reports.push(event.data);
+  }}
+}});
+</script>
+</body></html>
+""", 200, {"Cache-Control": "no-store"}
 
 
 @app.get("/logout-setcookie")

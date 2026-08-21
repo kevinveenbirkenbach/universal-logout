@@ -80,30 +80,52 @@
 
     const domains = {{ domains | tojson | safe }};
 
-    domains.forEach((host, index) => {
-      // Per-request cache-buster
+    const issuer = new URLSearchParams(window.location.search).get("iss") || document.referrer;
+    let parentOrigin = null;
+    try {
+      parentOrigin = issuer ? new URL(issuer).origin : null;
+    } catch {
+      parentOrigin = null;
+    }
+
+    const report = (payload) => {
+      try {
+        if (parentOrigin && window.self !== window.top) {
+          window.parent.postMessage(Object.assign({ source: "universal-logout" }, payload), parentOrigin);
+        }
+      } catch {}
+    };
+
+    report({ type: "start", domains });
+
+    const sweep = domains.map((host, index) => {
       const bust = Date.now().toString(36) + Math.random().toString(36).slice(2);
       const url = `${host}/logout?t=${bust}`;
 
-      fetch(url, {
+      return fetch(url, {
         credentials: "include",
         cache: "no-store",
-        mode: "cors"
+        mode: "cors",
+        keepalive: true
       })
-      .then((res) => {
-        const cell = document.getElementById(`status-${index}`);
-        if (res.ok) {
-          cell.textContent = "✅ Logged out";
-          cell.className = "status-success text-center";
-        } else {
-          cell.textContent = "❌ Failed";
-          cell.className = "status-failure text-center";
-        }
-      })
-      .catch(() => {
-        const cell = document.getElementById(`status-${index}`);
-        cell.textContent = "❌ Failed";
-        cell.className = "status-failure text-center";
+      .then((res) => res.ok)
+      .catch(() => false)
+      .then((ok) => {
+        report({ type: "host", host, ok });
+        try {
+          const cell = document.getElementById(`status-${index}`);
+          cell.textContent = ok ? "✅ Logged out" : "❌ Failed";
+          cell.className = `${ok ? "status-success" : "status-failure"} text-center`;
+        } catch {}
+        return ok;
+      });
+    });
+
+    Promise.allSettled(sweep).then((results) => {
+      report({
+        type: "done",
+        total: results.length,
+        failed: results.filter((r) => r.status !== "fulfilled" || !r.value).length
       });
     });
   </script>

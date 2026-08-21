@@ -72,7 +72,9 @@ server {
 
   # For anything else, just return 404 (explicit)
   location / {
-    return 404 "not found\n";
+    proxy_pass http://logout:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
 
@@ -154,6 +156,8 @@ server {
   }
 
   location / {
-    return 404 "not found\n";
+    proxy_pass http://logout:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
