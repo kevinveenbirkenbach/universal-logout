@@ -1,11 +1,11 @@
 # app.py
-from flask import Flask, request, make_response, render_template
 import logging
-import sys
 import os
+import sys
 from pathlib import Path
 
 import yaml
+from flask import Flask, make_response, render_template, request
 
 app = Flask(__name__, template_folder="templates")
 
