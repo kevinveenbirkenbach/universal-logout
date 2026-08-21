@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2026-08-21
+## [1.3.0] - 2026-08-21
 
 * The logout page now speaks 30 languages, picked from the browser's *Accept-Language* header and overridable with *?lang=*. Arabic, Persian and Urdu render right-to-left.
 * The conductor reports its sweep to the page that frames it via *postMessage*, so an identity provider embedding this page can tell when every service has been signed out — and which ones did not answer.
