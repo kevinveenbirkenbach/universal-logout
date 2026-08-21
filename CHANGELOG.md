@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.1] - 2026-08-21
+
+* Releases now actually reach the registry. Pushing a version tag started no workflow at all, and the build read its version from a tag lookup that a branch push could not see — which is why every image ever published carried only *latest*.
+* *latest* no longer moves when an older commit is tagged. It follows the branch; a release keeps its own tag.
+
 ## [1.3.0] - 2026-08-21
 
 * The logout page now speaks 30 languages, picked from the browser's *Accept-Language* header and overridable with *?lang=*. Arabic, Persian and Urdu render right-to-left.
