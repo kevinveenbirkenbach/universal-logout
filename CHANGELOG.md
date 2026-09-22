@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1] - 2026-09-22
+
+* The image no longer ships *pip*, *setuptools* or *wheel*, clearing ten CVEs.
+* Workflows default to a read-only token; only publish may write packages.
+* Actions and base images are pinned to commit SHAs and image digests.
+* *SECURITY.md* names private channels for reporting a vulnerability.
+* The E2E cookie lab moves to Flask 3.1.3 (PYSEC-2026-2151).
+
 ## [1.4.0] - 2026-09-22
 
 * Image ships for *linux/amd64* and *linux/arm64* under one tag.
