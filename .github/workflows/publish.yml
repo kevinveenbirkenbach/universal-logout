@@ -3,6 +3,9 @@ name: Publish Docker Image
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: Publish the tested images

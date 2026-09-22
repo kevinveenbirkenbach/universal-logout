@@ -11,7 +11,8 @@ WORKDIR /app
 
 # Install dependencies
 COPY pyproject.toml README.md app.py ./
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir . \
+ && pip uninstall --yes pip setuptools wheel
 
 # Copy application code
 COPY translations.yml ./

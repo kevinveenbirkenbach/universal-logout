@@ -172,7 +172,9 @@ def _render(match: re.Match) -> str:
 
 def _script() -> str:
     html = TEMPLATE.read_text()
-    blocks = re.findall(r"<script>(.*?)</script>", html, flags=re.DOTALL)
+    blocks = re.findall(
+        r"<script>(.*?)</script>", html, flags=re.DOTALL | re.IGNORECASE
+    )
     assert blocks, "no inline <script> block in the conductor template"
     body = "\n".join(blocks)
     body = re.sub(r"\{%.*?%\}", "", body, flags=re.DOTALL)
