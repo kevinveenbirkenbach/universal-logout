@@ -20,6 +20,6 @@ The `runner` container executes Playwright tests and exits with a non-zero code 
 
 ## Notes
 
-* HTTPS uses a self-signed wildcard certificate for `*.test.local`.
-* Playwright is configured to ignore HTTPS errors.
-* `Clear-Site-Data` is not reliable on HTTP in browsers; HTTPS is the contract.
+- HTTPS uses a self-signed wildcard certificate for `*.test.local`.
+- Playwright is configured to ignore HTTPS errors.
+- `Clear-Site-Data` is not reliable on HTTP in browsers; HTTPS is the contract.

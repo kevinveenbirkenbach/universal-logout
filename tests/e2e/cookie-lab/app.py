@@ -66,7 +66,7 @@ def whoami():
     """
     Returns cookie names seen by this origin. Used by tests.
     """
-    cookies = sorted(list(request.cookies.keys()))
+    cookies = sorted(request.cookies.keys())
     return jsonify({"host": request.host.split(":")[0], "cookies": cookies})
 
 
@@ -107,7 +107,8 @@ def frame():
     conductor = request.args.get("conductor", "https://logout.test.local/")
     scheme = request.headers.get("X-Forwarded-Proto", request.scheme)
     origin = f"{scheme}://{request.host}"
-    return f"""<!doctype html>
+    return (
+        f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>frame</title></head>
 <body>
 <h1 id="parent">parent</h1>
@@ -123,7 +124,10 @@ window.addEventListener("message", function (event) {{
 }});
 </script>
 </body></html>
-""", 200, {"Cache-Control": "no-store"}
+""",
+        200,
+        {"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/logout-setcookie")

@@ -41,7 +41,9 @@ def test_every_visible_cookie_is_expired_on_three_scopes(client):
 
     for name in ("sid", "other"):
         deletions = _deletions(response, name)
-        assert len(deletions) == 3, f"{name} needs parent-domain, exact-host and host-only"
+        assert len(deletions) == 3, (
+            f"{name} needs parent-domain, exact-host and host-only"
+        )
         assert all(morsel.value == "" for morsel in deletions)
         assert all(morsel["max-age"] in ("0", 0) for morsel in deletions)
         domains = {morsel["domain"] for morsel in deletions}

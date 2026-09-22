@@ -22,7 +22,7 @@ def negotiate_language(accept_languages, requested=None):
     :param requested: explicit override, e.g. the ``lang`` query parameter
     :return: a key of ``TRANSLATIONS``; ``FALLBACK_LANG`` when nothing matches
     """
-    for candidate in (requested, ):
+    for candidate in (requested,):
         if candidate and candidate.split("-")[0].lower() in TRANSLATIONS:
             return candidate.split("-")[0].lower()
 
@@ -36,6 +36,7 @@ def negotiate_language(accept_languages, requested=None):
             return base
 
     return FALLBACK_LANG
+
 
 # Load domains from an env var (comma-separated)
 DOMAINS = [d.strip() for d in os.getenv("LOGOUT_DOMAINS", "").split(",") if d.strip()]

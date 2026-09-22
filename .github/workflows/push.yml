@@ -10,13 +10,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint
+    uses: ./.github/workflows/lint.yml
+
   e2e:
     name: Run E2E tests
     uses: ./.github/workflows/e2e.yml
 
   publish:
     name: Publish the tested images
-    needs: e2e
+    needs: [lint, e2e]
     uses: ./.github/workflows/publish.yml
     permissions:
       contents: read

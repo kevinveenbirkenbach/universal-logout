@@ -21,7 +21,9 @@ def test_thirty_languages_are_offered():
 def test_every_language_carries_every_key():
     expected = set(CATALOGUE[REFERENCE])
     for lang, entry in CATALOGUE.items():
-        assert set(entry) == expected, f"{lang} diverges: {sorted(set(entry) ^ expected)}"
+        assert set(entry) == expected, (
+            f"{lang} diverges: {sorted(set(entry) ^ expected)}"
+        )
 
 
 def test_no_string_is_left_empty_or_untranslated_by_accident():
@@ -32,7 +34,9 @@ def test_no_string_is_left_empty_or_untranslated_by_accident():
         if lang == REFERENCE:
             continue
         translated = [k for k, v in entry.items() if k != "dir" and v != reference[k]]
-        assert len(translated) >= len(reference) - 2, f"{lang} looks mostly untranslated"
+        assert len(translated) >= len(reference) - 2, (
+            f"{lang} looks mostly untranslated"
+        )
 
 
 def test_right_to_left_languages_are_marked_and_others_are_not():
@@ -45,7 +49,9 @@ def test_every_key_the_template_uses_exists(client):
     used = set(re.findall(r"\bt\.([a-z_]+)", TEMPLATE))
     assert used, "the template no longer reads the catalogue"
     missing = used - set(CATALOGUE[REFERENCE])
-    assert not missing, f"the template reads keys the catalogue lacks: {sorted(missing)}"
+    assert not missing, (
+        f"the template reads keys the catalogue lacks: {sorted(missing)}"
+    )
 
 
 def test_every_catalogue_key_is_actually_used(client):

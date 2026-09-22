@@ -19,7 +19,7 @@ async function triggerCsdViaFetch(page, url) {
         cache: "no-store",
       });
       await res.text();
-    } catch (e) {
+    } catch {
       // Some browsers may still throw during CSD processing - ignore.
     }
   }, url);

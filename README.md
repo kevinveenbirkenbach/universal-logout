@@ -1,4 +1,5 @@
 # Universal Logout 🍪
+
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-blue?logo=github)](https://github.com/sponsors/kevinveenbirkenbach) [![Patreon](https://img.shields.io/badge/Support-Patreon-orange?logo=patreon)](https://www.patreon.com/c/kevinveenbirkenbach) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20Coffee-Funding-yellow?logo=buymeacoffee)](https://buymeacoffee.com/kevinveenbirkenbach) [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue?logo=paypal)](https://s.veen.world/paypaldonate) [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
 ---
@@ -23,10 +24,8 @@ Universal Logout uses **two mechanisms**:
 
 Every response includes:
 
-```
-
+```text
 Clear-Site-Data: "cache","cookies","storage"
-
 ```
 
 **On HTTPS**, modern browsers are expected to honor this header and clear:
@@ -65,6 +64,7 @@ When Universal Logout is served via **HTTPS**:
 - Set-Cookie expirations are applied as additional best-effort cleanup
 
 **Result on HTTPS:**
+
 - ✅ Cookies are reliably cleared (browser-managed)
 - ✅ Storage is cleared
 - ✅ Works cross-browser (validated via E2E tests)
@@ -78,6 +78,7 @@ When served via **HTTP**:
 - Since Set-Cookie deletion is **path-sensitive**, cookies set on paths like `/api` may remain
 
 **Result on HTTP:**
+
 - ❌ Clear-Site-Data may be ignored
 - ⚠️ Only cookies visible to the request and matching `Path=/` are deleted best-effort
 - ⚠️ Cookies on other paths (e.g. `/api`) and some host-only/domain variants may remain depending on how they were set
@@ -101,9 +102,9 @@ When served via **HTTP**:
 
 1. Configure your logout domains in `.env`, e.g.:
 
-```
-LOGOUT_DOMAINS=https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com
-```
+   ```dotenv
+   LOGOUT_DOMAINS=https://app.example.com,https://nextcloud.example.com,https://mastodon.example.com
+   ```
 
 2. Deploy the logout proxy (Docker/Gunicorn).
 
@@ -120,6 +121,7 @@ The image is published to GitHub Container Registry:
 `ghcr.io/kevinveenbirkenbach/universal-logout`
 
 Tags:
+
 - Every release tag `vX.Y.Z` is published for `linux/amd64` and `linux/arm64`.
 - `latest` follows the highest release tag.
 
@@ -166,6 +168,31 @@ CI builds the image once per architecture on native amd64 and arm64 runners and
 runs the E2E suite against exactly that image on the same architecture. A
 release tag publishes those tested images under one multi-architecture tag
 without building them again.
+
+---
+
+## Lint
+
+```bash
+make lint
+```
+
+Each linter runs from its own container image, so Docker is the only local
+requirement:
+
+| Target | Checks |
+| --- | --- |
+| `lint-python` | ruff check and ruff format |
+| `lint-javascript` | ESLint |
+| `lint-json` | JSON syntax |
+| `lint-yaml` | yamllint |
+| `lint-toml` | TOML syntax of `pyproject.toml` |
+| `lint-docker` | hadolint on every Dockerfile |
+| `lint-markdown` | markdownlint-cli2 |
+| `lint-actions` | actionlint, including shellcheck on the workflow scripts |
+| `lint-html` | djlint on the Jinja templates |
+| `lint-nginx` | `nginx -t` on the E2E proxy config |
+| `lint-compose` | `docker compose config` on the E2E stack |
 
 ---
 

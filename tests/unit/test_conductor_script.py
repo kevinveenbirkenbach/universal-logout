@@ -179,7 +179,9 @@ def _script() -> str:
     return re.sub(r"\{\{.*?\}\}", _render, body, flags=re.DOTALL)
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node is not available in PATH")
+@pytest.mark.skipif(
+    shutil.which("node") is None, reason="node is not available in PATH"
+)
 def test_the_conductor_reports_its_sweep_to_the_framing_page(tmp_path):
     script = tmp_path / "conductor.js"
     script.write_text(_script())

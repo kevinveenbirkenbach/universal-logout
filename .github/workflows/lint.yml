@@ -1,0 +1,45 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - lint-python
+          - lint-javascript
+          - lint-json
+          - lint-yaml
+          - lint-toml
+          - lint-docker
+          - lint-markdown
+          - lint-actions
+          - lint-html
+          - lint-nginx
+          - lint-compose
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run ${{ matrix.target }}
+        run: make ${{ matrix.target }}

@@ -42,6 +42,7 @@ services:
     container_name: e2e-runner
     depends_on:
       - nginx
+    # no entrypoint/command override -> uses Dockerfile CMD ["npm","test"]
     environment:
       # inside the docker network nginx listens on 80/443
       BASE_HTTP: "http://app.test.local"
@@ -56,4 +57,3 @@ services:
     volumes:
       # the shipped catalogue itself, so the spec cannot drift from a copy
       - ../../translations.yml:/work/translations.yml:ro
-    # no entrypoint/command override -> uses Dockerfile CMD ["npm","test"]
