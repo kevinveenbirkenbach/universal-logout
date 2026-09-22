@@ -7,8 +7,8 @@ services:
       - "8000"
 
   logout:
-    build:
-      context: ../..
+    image: universal-logout:e2e
+    pull_policy: never
     container_name: e2e-logout
     environment:
       LOGOUT_DOMAINS: "https://app.test.local,https://absent.test.local"

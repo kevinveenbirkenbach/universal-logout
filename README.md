@@ -120,8 +120,8 @@ The image is published to GitHub Container Registry:
 `ghcr.io/kevinveenbirkenbach/universal-logout`
 
 Tags:
-- `latest` is pushed on successful `main` builds.
-- A Git tag is pushed only when the current commit is tagged.
+- Every release tag `vX.Y.Z` is published for `linux/amd64` and `linux/arm64`.
+- `latest` follows the highest release tag.
 
 ### Docker Run
 
@@ -158,6 +158,14 @@ Run:
 ```bash
 make test-e2e
 ```
+
+`make test-e2e` builds the service image as `universal-logout:e2e` first.
+`make test-e2e-run` skips that build and tests whatever image carries the tag.
+
+CI builds the image once per architecture on native amd64 and arm64 runners and
+runs the E2E suite against exactly that image on the same architecture. A
+release tag publishes those tested images under one multi-architecture tag
+without building them again.
 
 ---
 

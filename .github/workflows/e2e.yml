@@ -13,10 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e:
-    name: Run E2E tests
+  unit:
+    name: Run unit tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -35,18 +34,45 @@ jobs:
       - name: Run unit tests
         run: make test-unit
 
-      # Buildx is not strictly required, but helps with consistent Docker builds on GitHub runners.
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  build:
+    name: Build image
+    needs: unit
+    uses: ./.github/workflows/build.yml
+
+  e2e:
+    name: Run E2E tests (${{ matrix.arch }})
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download the image the build job produced
+        uses: actions/download-artifact@v4
+        with:
+          name: image-${{ matrix.arch }}
+          path: ${{ runner.temp }}
+
+      - name: Load the image
+        run: docker load --input "${{ runner.temp }}/image.tar"
 
       - name: Show Docker versions
         run: |
           docker version
           docker compose version
 
-      - name: Run E2E tests (clean)
-        run: |
-          make test-e2e-clean
+      - name: Run E2E tests against the loaded image
+        run: make test-e2e-run
 
       # If anything fails above, print container logs to make debugging easy.
       - name: Dump docker compose logs on failure
