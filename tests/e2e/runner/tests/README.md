@@ -11,9 +11,10 @@ This test suite validates cookie deletion strategies across HTTP and HTTPS:
 From repo root:
 
 ```bash
-cd tests/e2e
-docker compose up --build --abort-on-container-exit
+make test-e2e
 ```
+
+The stack runs the service image `universal-logout:e2e`; `make test-e2e` builds it first.
 
 The `runner` container executes Playwright tests and exits with a non-zero code on failure.
 
