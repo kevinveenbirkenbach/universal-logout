@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "universal-logout"
-version = "1.3.1"
+version = "1.4.0"
 description = "Front-channel logout conductor: sweeps every configured domain and reports each result to the page that frames it"
 readme = "README.md"
 requires-python = ">=3.10"

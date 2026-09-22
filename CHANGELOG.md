@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0] - 2026-09-22
+
+* Image ships for *linux/amd64* and *linux/arm64* under one tag.
+* Each arch is built once natively and published as the build e2e tested.
+* *latest* follows the highest release tag, not untagged commits on *main*.
+* A release commit pushed with its tag no longer builds the image twice.
+* *make lint* checks every language and format the repository ships.
+* CodeQL, Trivy, dependency review and OSSF scorecard run on every change.
+* Dependabot keeps actions, images and packages current.
+* Playwright bumps no longer break e2e when image and package drift.
+* *make test-e2e* builds the image first; *make test-e2e-run* reuses it.
+
 ## [1.3.1] - 2026-08-21
 
 * Releases now actually reach the registry. Pushing a version tag started no workflow at all, and the build read its version from a tag lookup that a branch push could not see — which is why every image ever published carried only *latest*.
