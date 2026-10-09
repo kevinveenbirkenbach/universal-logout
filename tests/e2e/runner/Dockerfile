@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.47.2-jammy@sha256:eee5be766a342139241c9a51e6449cb8f6ff2847fbd0792f91793aaf0c7f4f46
+FROM mcr.microsoft.com/playwright:v1.64.0-jammy@sha256:c064e7f355d2dda32f669801a1b09e86a1e9252395c844d2cfbbe5c44acb9b79
 
 WORKDIR /work
 COPY package.json ./
