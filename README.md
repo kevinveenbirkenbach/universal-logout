@@ -89,12 +89,12 @@ When served via **HTTP**:
 
 ## What `/logout` does
 
-`GET /logout`:
+`GET /logout` and `POST /logout`:
 
-- returns **205 Reset Content** (suggests the browser should reset the view)
-- sends strict anti-cache headers
-- always sends `Clear-Site-Data: "cache","cookies","storage"`
-- additionally sends best-effort `Set-Cookie` expirations (Path=/ only)
+- return **200 OK**
+- send strict anti-cache headers
+- always send `Clear-Site-Data: "cache","cookies","storage"`
+- additionally send best-effort `Set-Cookie` expirations (Path=/ only)
 
 ---
 

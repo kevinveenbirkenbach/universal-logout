@@ -50,6 +50,15 @@ def test_every_visible_cookie_is_expired_on_three_scopes(client):
         assert domains == {"test.local", "app.test.local", ""}
 
 
+def test_a_post_logs_out_like_a_get(client):
+    client.set_cookie("sid", "abc", domain="app.test.local")
+    response = client.post("/logout", base_url="http://app.test.local")
+
+    assert response.status_code == 200
+    assert response.headers["Clear-Site-Data"] == '"cache","cookies","storage"'
+    assert len(_deletions(response, "sid")) == 3
+
+
 def test_a_request_without_cookies_expires_nothing(client):
     response = client.get("/logout", base_url="https://app.test.local")
     assert _set_cookie_headers(response) == []

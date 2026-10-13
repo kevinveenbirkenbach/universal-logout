@@ -81,7 +81,7 @@ def conductor():
     )
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
     """
     Logout endpoint with ZERO path special-casing.
