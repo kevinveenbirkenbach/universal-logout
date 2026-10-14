@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.2] - 2026-10-14
+
+* *POST /logout* logs out like *GET /logout*: 200, *Clear-Site-Data* and the cookie expirations. A frontend that logged out with a POST got 405 and, outside a secure context, kept its cookies.
+* The README describes */logout* with its actual 200 instead of 205.
+
 ## [1.4.1] - 2026-09-22
 
 * The image no longer ships *pip*, *setuptools* or *wheel*, clearing ten CVEs.
