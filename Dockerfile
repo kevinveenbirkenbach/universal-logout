@@ -1,5 +1,5 @@
 # Dockerfile for cymais-logout-service
-FROM python:3.10-slim@sha256:31dd4d9529d02d7436659061cb7564cd4733fc90e5e152709a942d53382ec8d0
+FROM python:3.12-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704
 
 # Build argument for container port (default 8000)
 ARG LOGOUT_PORT=8000
