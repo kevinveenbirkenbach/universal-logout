@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlencode, urlsplit
 
 import yaml
 from flask import Flask, make_response, render_template, request
@@ -38,8 +39,65 @@ def negotiate_language(accept_languages, requested=None):
     return FALLBACK_LANG
 
 
+HANDOFF_PARAM = "handoff"
+
+
+def _url_list(raw):
+    urls = []
+    for part in raw.split(","):
+        url = part.strip().rstrip("/")
+        if url and url not in urls:
+            urls.append(url)
+    return urls
+
+
+def parse_siblings(raw):
+    """Read the conductors of the other networks a finished sweep hands off to.
+
+    :param raw: value of ``LOGOUT_SIBLINGS``: comma-separated absolute http(s)
+        base URLs of the sibling conductors; ``""`` disables the hand-off
+    :return: the base URLs without trailing slash, duplicates dropped, order kept
+    :raises ValueError: an entry is not an absolute http(s) URL, or carries a
+        query or fragment
+    """
+    siblings = _url_list(raw)
+    for url in siblings:
+        parts = urlsplit(url)
+        if (
+            parts.scheme not in ("http", "https")
+            or not parts.netloc
+            or parts.query
+            or parts.fragment
+        ):
+            raise ValueError(
+                f"LOGOUT_SIBLINGS entry is not an http(s) base URL: {url!r}"
+            )
+    return siblings
+
+
+def handoff_target(siblings, marker):
+    """Pick the conductor the browser continues to once this sweep is done.
+
+    :param siblings: the configured sibling conductors, as ``parse_siblings``
+        returns them
+    :param marker: the ``handoff`` query parameter, listing the conductors still
+        to visit; ``None`` when this conductor starts the logout
+    :return: URL of the next conductor, carrying the conductors left after it in
+        its own ``handoff`` parameter; ``None`` when the logout ends here. Only a
+        configured sibling is ever returned.
+    """
+    if marker is None:
+        queue = siblings
+    else:
+        queue = [url for url in _url_list(marker) if url in siblings]
+    if not queue:
+        return None
+    return f"{queue[0]}/?{urlencode({HANDOFF_PARAM: ','.join(queue[1:])})}"
+
+
 # Load domains from an env var (comma-separated)
 DOMAINS = [d.strip() for d in os.getenv("LOGOUT_DOMAINS", "").split(",") if d.strip()]
+SIBLINGS = parse_siblings(os.getenv("LOGOUT_SIBLINGS", ""))
 DEBUG = os.getenv("DEBUG_LOGOUT", "false").lower() in ("1", "true", "yes")
 
 logging.basicConfig(
@@ -78,6 +136,8 @@ def conductor():
         t=catalogue,
         lang=lang,
         text_direction=catalogue["dir"],
+        siblings=SIBLINGS,
+        handoff=handoff_target(SIBLINGS, request.args.get(HANDOFF_PARAM)),
     )
 
 

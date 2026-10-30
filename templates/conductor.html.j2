@@ -16,6 +16,9 @@
     .status-failure    { color: #b22222; font-weight: 600; }
     .manual-logout-link { font-weight: 600; }
     #iframe-warning { display: none; margin-bottom: 1rem; }
+{%- if siblings %}
+    #iframe-warning { display: none !important; }
+{%- endif %}
   </style>
 </head>
 <body class="bg-light">
@@ -131,5 +134,18 @@
       });
     });
   </script>
+{%- if handoff %}
+  <script>
+    const HANDOFF = {{ handoff | tojson | safe }};
+
+    Promise.allSettled(sweep).then(() => {
+      if (window.self === window.top) {
+        window.location.replace(HANDOFF);
+      } else {
+        report({ type: "handoff", url: HANDOFF });
+      }
+    });
+  </script>
+{%- endif %}
 </body>
 </html>

@@ -8,17 +8,13 @@ silent break there.
 The script is exercised as served: lifted out of the rendered template.
 """
 
-import json
 import re
 import shutil
 import subprocess
 import textwrap
-from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-TEMPLATE = REPO_ROOT / "templates" / "conductor.html.j2"
 PARENT_ORIGIN = "https://auth.example.test"
 DOMAINS = ["https://shop.example.test", "https://cloud.example.test"]
 LABEL_DONE = "Signed out"
@@ -153,49 +149,127 @@ DRIVER = textwrap.dedent(
 )
 
 
-SUBSTITUTIONS = {
-    "domains": DOMAINS,
-    "st_done": LABEL_DONE,
-    "st_failed": LABEL_FAILED,
-}
+HANDOFF_DRIVER = textwrap.dedent(
+    """
+    const assert = require("assert");
+    const script = require("fs").readFileSync(process.argv[2], "utf8");
+    const PARENT = process.argv[3];
+    const TARGET = process.argv[4];
+
+    function harness(framed) {
+      const posted = [];
+      const replaced = [];
+      const pending = [];
+      const top = {};
+      global.document = {
+        referrer: "",
+        getElementById() { return { textContent: "", className: "", style: {} }; },
+      };
+      global.window = {
+        self: framed ? {} : top,
+        top,
+        location: {
+          search: `?iss=${PARENT}/realms/x`,
+          replace(url) { replaced.push(url); },
+        },
+        parent: {
+          postMessage(payload, origin) { posted.push({ payload, origin }); },
+        },
+      };
+      global.fetch = () => new Promise((resolve) => {
+        pending.push(() => resolve({ ok: true }));
+      });
+
+      eval(script);
+      return { posted, replaced, answer: () => pending.splice(0).forEach((f) => f()) };
+    }
+
+    const settle = async () => {
+      for (let i = 0; i < 30; i += 1) { await new Promise((r) => setImmediate(r)); }
+    };
+
+    (async () => {
+      {
+        const h = harness(false);
+        await settle();
+        assert.deepStrictEqual(h.replaced, [], "the hand-off waits for the sweep");
+        h.answer();
+        await settle();
+        assert.deepStrictEqual(h.replaced, [TARGET], "a top-level conductor travels on");
+        assert.strictEqual(h.posted.length, 0, "and reports to nobody");
+      }
+
+      {
+        const h = harness(true);
+        h.answer();
+        await settle();
+        assert.deepStrictEqual(
+          h.replaced, [], "a framed conductor leaves the top-level navigation to its parent",
+        );
+        const kinds = h.posted.map((m) => m.payload.type);
+        assert.deepStrictEqual(kinds, ["start", "host", "host", "done", "handoff"], `got ${kinds}`);
+        const handoff = h.posted[4];
+        assert.strictEqual(handoff.payload.url, TARGET);
+        assert.strictEqual(handoff.payload.source, "universal-logout");
+        assert.strictEqual(handoff.origin, PARENT, "the hand-off is addressed like every report");
+      }
+
+      console.log("OK");
+    })();
+    """
+)
 
 
-def _render(match: re.Match) -> str:
-    expression = match.group(0)
-    for needle, value in SUBSTITUTIONS.items():
-        if needle in expression:
-            return json.dumps(value)
-    raise AssertionError(
-        f"the conductor script grew an expression this test cannot render: {expression}"
-    )
-
-
-def _script() -> str:
-    html = TEMPLATE.read_text()
+def _script(client, module, monkeypatch, siblings=()) -> str:
+    monkeypatch.setattr(module, "DOMAINS", DOMAINS)
+    monkeypatch.setattr(module, "SIBLINGS", list(siblings))
+    html = client.get("/?lang=en").get_data(as_text=True)
     blocks = re.findall(
         r"<script>(.*?)</script>", html, flags=re.DOTALL | re.IGNORECASE
     )
     assert blocks, "no inline <script> block in the conductor template"
-    body = "\n".join(blocks)
-    body = re.sub(r"\{%.*?%\}", "", body, flags=re.DOTALL)
-    return re.sub(r"\{\{.*?\}\}", _render, body, flags=re.DOTALL)
+    return "\n".join(blocks)
+
+
+def _run(tmp_path, script, driver, *args):
+    script_file = tmp_path / "conductor.js"
+    script_file.write_text(script)
+    driver_file = tmp_path / "driver.js"
+    driver_file.write_text(driver)
+    return subprocess.run(
+        ["node", str(driver_file), str(script_file), PARENT_ORIGIN, *args],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
 
 
 @pytest.mark.skipif(
     shutil.which("node") is None, reason="node is not available in PATH"
 )
-def test_the_conductor_reports_its_sweep_to_the_framing_page(tmp_path):
-    script = tmp_path / "conductor.js"
-    script.write_text(_script())
-    driver = tmp_path / "driver.js"
-    driver.write_text(DRIVER)
+def test_the_conductor_reports_its_sweep_to_the_framing_page(
+    tmp_path, client, module, monkeypatch
+):
+    assert module.TRANSLATIONS["en"]["st_done"] == LABEL_DONE
+    assert module.TRANSLATIONS["en"]["st_failed"] == LABEL_FAILED
+    script = _script(client, module, monkeypatch)
 
-    proc = subprocess.run(
-        ["node", str(driver), str(script), PARENT_ORIGIN, LABEL_DONE],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    proc = _run(tmp_path, script, DRIVER, LABEL_DONE)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "OK" in proc.stdout
+
+
+@pytest.mark.skipif(
+    shutil.which("node") is None, reason="node is not available in PATH"
+)
+def test_the_conductor_hands_off_to_its_sibling_once_the_sweep_is_done(
+    tmp_path, client, module, monkeypatch
+):
+    sibling = "http://logout.abcdefghijklmnop.onion"
+    script = _script(client, module, monkeypatch, siblings=[sibling])
+
+    proc = _run(tmp_path, script, HANDOFF_DRIVER, f"{sibling}/?handoff=")
 
     assert proc.returncode == 0, proc.stderr
     assert "OK" in proc.stdout

@@ -161,3 +161,31 @@ server {
     proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
+
+server {
+  listen 443 ssl;
+  server_name handoff-a.test.local;
+
+  ssl_certificate     /etc/nginx/certs/tls.crt;
+  ssl_certificate_key /etc/nginx/certs/tls.key;
+
+  location / {
+    proxy_pass http://handoff-a:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}
+
+server {
+  listen 443 ssl;
+  server_name handoff-b.test.local;
+
+  ssl_certificate     /etc/nginx/certs/tls.crt;
+  ssl_certificate_key /etc/nginx/certs/tls.key;
+
+  location / {
+    proxy_pass http://handoff-b:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}

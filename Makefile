@@ -44,6 +44,7 @@ lint-html:
 
 lint-nginx:
 	docker run --rm --add-host cookie-lab:127.0.0.1 --add-host logout:127.0.0.1 \
+		--add-host handoff-a:127.0.0.1 --add-host handoff-b:127.0.0.1 \
 		-v "$(CURDIR)/tests/e2e/nginx.conf.example:/etc/nginx/conf.d/default.conf:ro" \
 		-v "$(CURDIR)/tests/e2e/certs:/etc/nginx/certs:ro" \
 		nginx:1.27-alpine nginx -t

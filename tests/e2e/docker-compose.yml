@@ -16,12 +16,36 @@ services:
     expose:
       - "8000"
 
+  handoff-a:
+    image: universal-logout:e2e
+    pull_policy: never
+    container_name: e2e-handoff-a
+    environment:
+      LOGOUT_DOMAINS: "https://app.test.local"
+      LOGOUT_SIBLINGS: "https://handoff-b.test.local"
+      LOGOUT_PORT: "8000"
+    expose:
+      - "8000"
+
+  handoff-b:
+    image: universal-logout:e2e
+    pull_policy: never
+    container_name: e2e-handoff-b
+    environment:
+      LOGOUT_DOMAINS: "https://app.test.local"
+      LOGOUT_SIBLINGS: "https://handoff-a.test.local"
+      LOGOUT_PORT: "8000"
+    expose:
+      - "8000"
+
   nginx:
     image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
     container_name: e2e-nginx
     depends_on:
       - cookie-lab
       - logout
+      - handoff-a
+      - handoff-b
     ports:
       - "8080:80"
       - "8443:443"
@@ -35,6 +59,8 @@ services:
           - app.test.local
           - logout.test.local
           - domain.test.local
+          - handoff-a.test.local
+          - handoff-b.test.local
 
   runner:
     build:
@@ -52,6 +78,8 @@ services:
       FRAME_HTTPS: "https://app.test.local/frame"
       SWEPT_OK: "https://app.test.local"
       SWEPT_FAILING: "https://absent.test.local"
+      HANDOFF_A: "https://handoff-a.test.local"
+      HANDOFF_B: "https://handoff-b.test.local"
       PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
       CATALOGUE: "/work/translations.yml"
     volumes:

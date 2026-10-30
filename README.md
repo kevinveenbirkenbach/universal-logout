@@ -112,6 +112,38 @@ When served via **HTTP**:
 
 4. Ensure each application has a `/logout` endpoint that invalidates its own session.
 
+### Several networks, one conductor each
+
+A deployment that serves the same applications on more than one network, for
+example on clearnet over HTTPS and as Tor onion services over HTTP, runs one
+conductor per network. A page served over HTTPS cannot fetch HTTP hosts, so the
+browser travels instead: once a conductor's sweep is done it hands off to the
+conductor of the next network.
+
+Configure every conductor with the base URLs of the other networks' conductors:
+
+```dotenv
+# clearnet conductor
+LOGOUT_SIBLINGS=http://logout.example.onion
+# onion conductor
+LOGOUT_SIBLINGS=https://logout.example.com
+```
+
+- `LOGOUT_SIBLINGS` is a comma-separated list of absolute `http(s)` base URLs
+  without query or fragment. An invalid entry stops the service from starting.
+  Empty or unset disables the hand-off and leaves the page unchanged.
+- The conductor that starts a logout visits its siblings in the configured
+  order. The hand-off URL carries the conductors still to visit in its `handoff`
+  query parameter, so every conductor sweeps once and the last one ends on its
+  own page.
+- A conductor only ever hands off to a URL from its own `LOGOUT_SIBLINGS`;
+  entries of the `handoff` parameter that are not configured there are dropped.
+- Loaded top-level, the conductor navigates to the next sibling itself and no
+  longer warns about the missing iframe. Loaded in an iframe, it cannot navigate
+  the top-level page, so after `done` it posts
+  `{ source: "universal-logout", type: "handoff", url }` to the framing page,
+  which performs the navigation.
+
 ---
 
 ## Docker Image
