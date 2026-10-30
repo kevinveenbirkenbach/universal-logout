@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1] - 2026-10-30
+
+Fixed:
+
+* Conductor: probes the next sibling (*no-cors*, 4 s) before handing off
+* Conductor: ends on its own page when that sibling cannot be reached
+* Image: the service image moves from Python 3.10 to 3.11
+
 ## [1.5.0] - 2026-10-30
 
 Added:
