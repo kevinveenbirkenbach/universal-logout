@@ -155,11 +155,13 @@ HANDOFF_DRIVER = textwrap.dedent(
     const script = require("fs").readFileSync(process.argv[2], "utf8");
     const PARENT = process.argv[3];
     const TARGET = process.argv[4];
+    const PROBE = `${new URL(TARGET).origin}/`;
 
-    function harness(framed) {
+    function harness(framed, siblingUp = true) {
       const posted = [];
       const replaced = [];
       const pending = [];
+      const probes = [];
       const top = {};
       global.document = {
         referrer: "",
@@ -176,12 +178,25 @@ HANDOFF_DRIVER = textwrap.dedent(
           postMessage(payload, origin) { posted.push({ payload, origin }); },
         },
       };
-      global.fetch = () => new Promise((resolve) => {
-        pending.push(() => resolve({ ok: true }));
-      });
+      global.fetch = (url, init) => {
+        if (url === PROBE) {
+          probes.push(init);
+          return siblingUp
+            ? Promise.resolve({ type: "opaque" })
+            : Promise.reject(new TypeError("Failed to fetch"));
+        }
+        return new Promise((resolve) => {
+          pending.push(() => resolve({ ok: true }));
+        });
+      };
 
       eval(script);
-      return { posted, replaced, answer: () => pending.splice(0).forEach((f) => f()) };
+      return {
+        posted,
+        replaced,
+        probes,
+        answer: () => pending.splice(0).forEach((f) => f()),
+      };
     }
 
     const settle = async () => {
@@ -193,10 +208,32 @@ HANDOFF_DRIVER = textwrap.dedent(
         const h = harness(false);
         await settle();
         assert.deepStrictEqual(h.replaced, [], "the hand-off waits for the sweep");
+        assert.strictEqual(h.probes.length, 0, "and so does the probe");
         h.answer();
         await settle();
         assert.deepStrictEqual(h.replaced, [TARGET], "a top-level conductor travels on");
         assert.strictEqual(h.posted.length, 0, "and reports to nobody");
+        assert.strictEqual(h.probes[0].mode, "no-cors");
+        assert.strictEqual(h.probes[0].credentials, "omit", "the probe carries no cookies");
+      }
+
+      {
+        const h = harness(false, false);
+        h.answer();
+        await settle();
+        assert.deepStrictEqual(
+          h.replaced, [], "a sibling the browser cannot reach keeps the conductor on its own page",
+        );
+      }
+
+      {
+        const h = harness(true, false);
+        h.answer();
+        await settle();
+        const kinds = h.posted.map((m) => m.payload.type);
+        assert.deepStrictEqual(
+          kinds, ["start", "host", "host", "done"], `an unreachable sibling is not reported: ${kinds}`,
+        );
       }
 
       {

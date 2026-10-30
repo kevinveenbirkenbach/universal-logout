@@ -137,14 +137,31 @@
 {%- if handoff %}
   <script>
     const HANDOFF = {{ handoff | tojson | safe }};
+    const HANDOFF_PROBE_MS = 4000;
 
-    Promise.allSettled(sweep).then(() => {
-      if (window.self === window.top) {
-        window.location.replace(HANDOFF);
-      } else {
-        report({ type: "handoff", url: HANDOFF });
-      }
-    });
+    function reachable(url) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), HANDOFF_PROBE_MS);
+      return fetch(`${new URL(url).origin}/`, {
+        mode: "no-cors",
+        credentials: "omit",
+        cache: "no-store",
+        signal: controller.signal,
+      }).then(() => true, () => false).finally(() => clearTimeout(timer));
+    }
+
+    Promise.allSettled(sweep)
+      .then(() => reachable(HANDOFF))
+      .then((ok) => {
+        if (!ok) {
+          return;
+        }
+        if (window.self === window.top) {
+          window.location.replace(HANDOFF);
+        } else {
+          report({ type: "handoff", url: HANDOFF });
+        }
+      });
   </script>
 {%- endif %}
 </body>

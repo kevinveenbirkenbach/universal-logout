@@ -2,7 +2,9 @@ const { test, expect } = require("@playwright/test");
 
 const HANDOFF_A = process.env.HANDOFF_A || "https://handoff-a.test.local";
 const HANDOFF_B = process.env.HANDOFF_B || "https://handoff-b.test.local";
+const HANDOFF_C = process.env.HANDOFF_C || "https://handoff-c.test.local";
 const FRAME = process.env.FRAME_HTTPS || "https://app.test.local/frame";
+const PROBE_WINDOW_MS = 5_000;
 
 async function waitForSweep(page) {
   await expect(page.locator("#status-0")).not.toHaveClass(/status-in-process/, {
@@ -73,5 +75,34 @@ test.describe("hand-off between sibling conductors", () => {
     await waitForSweep(page);
 
     expect(new URL(page.url()).origin).toBe(HANDOFF_A);
+  });
+
+  test("a conductor stays on its own page when its sibling cannot be reached", async ({
+    page,
+  }) => {
+    await page.goto(`${HANDOFF_C}/`, { waitUntil: "load" });
+    await waitForSweep(page);
+    await page.waitForTimeout(PROBE_WINDOW_MS);
+
+    expect(new URL(page.url()).origin).toBe(HANDOFF_C);
+  });
+
+  test("a framed conductor reports no hand-off to a sibling that cannot be reached", async ({
+    page,
+  }) => {
+    await page.goto(`${FRAME}?conductor=${encodeURIComponent(`${HANDOFF_C}/`)}`, {
+      waitUntil: "load",
+    });
+    await expect
+      .poll(
+        async () =>
+          (await page.evaluate(() => window.__reports || [])).some((r) => r.type === "done"),
+        { timeout: 30_000 },
+      )
+      .toBe(true);
+    await page.waitForTimeout(PROBE_WINDOW_MS);
+
+    const kinds = (await page.evaluate(() => window.__reports)).map((r) => r.type);
+    expect(kinds).not.toContain("handoff");
   });
 });

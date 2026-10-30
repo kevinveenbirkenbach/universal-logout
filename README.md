@@ -138,6 +138,10 @@ LOGOUT_SIBLINGS=https://logout.example.com
   own page.
 - A conductor only ever hands off to a URL from its own `LOGOUT_SIBLINGS`;
   entries of the `handoff` parameter that are not configured there are dropped.
+- Before it hands off, the conductor checks with a credential-less `no-cors`
+  request (4 s) that the browser can reach the next sibling. A browser that
+  cannot, such as one without Tor for an onion sibling or one that blocks the
+  plain-HTTP sibling as mixed content, ends on the current conductor's page.
 - Loaded top-level, the conductor navigates to the next sibling itself and no
   longer warns about the missing iframe. Loaded in an iframe, it cannot navigate
   the top-level page, so after `done` it posts

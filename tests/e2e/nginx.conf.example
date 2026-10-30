@@ -189,3 +189,17 @@ server {
     proxy_set_header X-Forwarded-Proto https;
   }
 }
+
+server {
+  listen 443 ssl;
+  server_name handoff-c.test.local;
+
+  ssl_certificate     /etc/nginx/certs/tls.crt;
+  ssl_certificate_key /etc/nginx/certs/tls.key;
+
+  location / {
+    proxy_pass http://handoff-c:8000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}

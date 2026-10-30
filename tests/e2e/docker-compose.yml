@@ -38,6 +38,17 @@ services:
     expose:
       - "8000"
 
+  handoff-c:
+    image: universal-logout:e2e
+    pull_policy: never
+    container_name: e2e-handoff-c
+    environment:
+      LOGOUT_DOMAINS: "https://app.test.local"
+      LOGOUT_SIBLINGS: "https://unreachable.test.local"
+      LOGOUT_PORT: "8000"
+    expose:
+      - "8000"
+
   nginx:
     image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
     container_name: e2e-nginx
@@ -46,6 +57,7 @@ services:
       - logout
       - handoff-a
       - handoff-b
+      - handoff-c
     ports:
       - "8080:80"
       - "8443:443"
@@ -61,6 +73,7 @@ services:
           - domain.test.local
           - handoff-a.test.local
           - handoff-b.test.local
+          - handoff-c.test.local
 
   runner:
     build:
@@ -80,6 +93,7 @@ services:
       SWEPT_FAILING: "https://absent.test.local"
       HANDOFF_A: "https://handoff-a.test.local"
       HANDOFF_B: "https://handoff-b.test.local"
+      HANDOFF_C: "https://handoff-c.test.local"
       PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
       CATALOGUE: "/work/translations.yml"
     volumes:
