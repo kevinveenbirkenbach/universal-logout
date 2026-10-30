@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.5.0] - 2026-10-30
+
+Added:
+
+* Conductor: *LOGOUT_SIBLINGS* hands off to the next network's conductor
+* Conductor: each sibling sweeps once; the last one ends on its own page
+* Conductor: framed, it posts a *handoff* report instead of navigating
+* Conductor: only configured siblings are hand-off targets
+* Conductor: an invalid *LOGOUT_SIBLINGS* entry stops startup
+* Conductor: unset or empty *LOGOUT_SIBLINGS* keeps the page unchanged
+
 ## [1.4.2] - 2026-10-14
 
 * *POST /logout* logs out like *GET /logout*: 200, *Clear-Site-Data* and the cookie expirations. A frontend that logged out with a POST got 405 and, outside a secure context, kept its cookies.
