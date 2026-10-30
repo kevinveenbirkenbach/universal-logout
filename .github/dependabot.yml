@@ -35,6 +35,7 @@ updates:
     directories:
       - "/"
       - "/tests/e2e/cookie-lab"
+      - "/tests/fuzz"
     schedule:
       interval: "daily"
       time: "00:00"

@@ -61,7 +61,7 @@ test.describe("hand-off between sibling conductors", () => {
     expect(target.origin).toBe(HANDOFF_B);
     expect(target.searchParams.get("handoff")).toBe("");
 
-    const conductor = page.frames().find((frame) => frame.url().startsWith(HANDOFF_A));
+    const conductor = page.frames().find((frame) => frame.url().startsWith(`${HANDOFF_A}/`));
     expect(conductor, "the framed conductor navigated itself away").toBeTruthy();
   });
 

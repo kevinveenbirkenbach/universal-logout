@@ -63,6 +63,10 @@ test: test-unit test-e2e
 test-unit:
 	$(PYTHON) -m pytest tests/unit -q
 
+.PHONY: test-fuzz
+test-fuzz:
+	PYTHONPATH=. $(PYTHON) tests/fuzz/fuzz_handoff.py -max_total_time=60
+
 .PHONY: e2e-image
 e2e-image:
 	docker build -t $(E2E_IMAGE) .
