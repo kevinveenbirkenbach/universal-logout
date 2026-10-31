@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.2] - 2026-10-31
+
+Fixed:
+
+* Image: dependencies install from a hash-locked *requirements.txt*
+* Tests: E2E images install pinned, hash-checked dependencies only
+* Tests: the framed hand-off spec matches the sibling host exactly
+* Tests: an Atheris fuzzer keeps hand-offs on configured siblings
+
 ## [1.5.1] - 2026-10-30
 
 Fixed:
