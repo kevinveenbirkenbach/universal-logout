@@ -161,27 +161,36 @@ LOGOUT_GATE_JWKS_URL=https://auth.example.com/realms/example/protocol/openid-con
 LOGOUT_GATE_CLIENTS={"web-app-xwiki": {"audience": "xwiki", "receiver": "https://xwiki.example.com/oidc/authenticator/backchannel_logout", "key": "<gate key>"}}
 ```
 
-- `LOGOUT_GATE_CLIENTS` maps each application id to its client id
-  (`audience`), the absolute `http(s)` URL of its own receiver (`receiver`) and
-  the gate key its proxy expects (`key`). Empty or unset disables the gate, and
-  every `/backchannel/...` request answers `404`. A malformed value, or clients
-  without `LOGOUT_GATE_ISSUER` and an `http(s)` `LOGOUT_GATE_JWKS_URL`, stops the
-  service from starting.
-- The token passes when it is signed by a key of `LOGOUT_GATE_JWKS_URL` with an
-  asymmetric algorithm (RS, PS or ES), names `LOGOUT_GATE_ISSUER` as `iss` and the
-  application's client as `aud`, carries `iat`, `exp`, `jti` and the
+- `LOGOUT_GATE_CLIENTS` maps each application id to an object of exactly three
+  strings: its client id (`audience`), the absolute `http(s)` URL of its own
+  receiver (`receiver`) and the gate key its proxy expects (`key`). Client id
+  and key are printable ASCII without spaces. Empty or unset disables the gate,
+  and every `/backchannel/...` request answers `404`.
+- `LOGOUT_GATE_ISSUER` is the absolute `http(s)` URL the tokens carry as `iss`,
+  and `LOGOUT_GATE_JWKS_URL` is the issuer's JWKS URL on the same origin. A
+  malformed value, a receiver with an invalid port, or clients without both
+  URLs stop the service from starting.
+- The token passes when the key of `LOGOUT_GATE_JWKS_URL` that its `kid` names
+  verifies it with that key's own asymmetric algorithm (RS, PS or ES), it names
+  `LOGOUT_GATE_ISSUER` as `iss` and the application's client as its only `aud`,
+  carries `iat`, `exp`, `jti` and the
   `http://schemas.openid.net/event/backchannel-logout` event, was issued at most
-  120 seconds ago (30 seconds of clock skew allowed), carries no `nonce` and names
-  `sub`, `sid` or both. This is section 2.6 of OpenID Connect Back-Channel
-  Logout 1.0. The keys are cached for 300 seconds and fetched again for an
-  unknown `kid`.
-- The gate answers `400` to a token that fails a check, `404` to an application
-  it does not serve, `503` while the issuer's keys cannot be fetched, and `502`
-  when the receiver answers anything but `2xx` or cannot be reached. A token that
-  passes goes to the receiver unchanged as the `logout_token` form field with the
-  application's key in the `X-Logout-Gate-Key` header, and the gate answers
-  `200` once the receiver answered `2xx`. The gate follows no redirect, so the
-  key reaches only the configured receiver.
+  120 seconds ago and at most 30 seconds ahead of the gate's clock, has not
+  passed its `exp`, carries no `nonce` and names `sub`, `sid` or both. This is
+  section 2.6 of OpenID Connect Back-Channel Logout 1.0. A `jti` passes once:
+  the gate remembers it for 150 seconds, at most 4096 of them, in the memory of
+  its process. The keys are cached for 300 seconds and fetched again for an
+  unknown `kid` at most every 30 seconds.
+- The gate answers `400` to a token that fails a check or comes again, `404` to
+  an application it does not serve, `413` to a body over 16 KiB, `503` while the
+  issuer's keys cannot be fetched or hold no usable key, and `502` when the
+  receiver answers anything but `2xx`, cannot be reached or answers no valid
+  HTTP response. A token that passes goes to the receiver unchanged as the
+  `logout_token` form field with the application's key in the
+  `X-Logout-Gate-Key` header, and the gate answers `200` once the receiver
+  answered `2xx`. The gate uses no HTTP proxy and follows no redirect, so the key
+  reaches only the configured receiver, and it logs why it refused a token
+  without the key and with control characters escaped.
 - The proxy in front of each application must refuse every request to the
   receiver that does not carry the application's key, and must strip the header
   before it passes the request on. Otherwise the gate adds nothing, because the
@@ -199,6 +208,10 @@ Tags:
 
 - Every release tag `vX.Y.Z` is published for `linux/amd64` and `linux/arm64`.
 - `latest` follows the highest release tag.
+
+The container runs as the unprivileged user `10001` and serves through one
+gunicorn process with eight threads, so the gate's `jti` memory covers every
+request. `LOGOUT_PORT` must stay above 1023.
 
 ### Docker Run
 

@@ -109,7 +109,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app.register_blueprint(gate.blueprint(gate.load(os.environ)))
+app.register_blueprint(
+    gate.blueprint(gate.load({name: os.getenv(name, "") for name in gate.SETTINGS}))
+)
 
 # Strict anti-cache headers applied to every response
 NO_STORE_HEADERS = {
@@ -237,9 +239,3 @@ def logout():
         )
 
     return response
-
-
-if __name__ == "__main__":
-    # Development only; use Gunicorn in production
-    port = int(os.getenv("LOGOUT_PORT", "8000"))
-    app.run(host="0.0.0.0", port=port)
