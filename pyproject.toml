@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 dependencies = [
     "Flask>=2.0",
     "gunicorn>=20.0",
+    "PyJWT[crypto]>=2.10",
     "PyYAML>=6.0",
 ]
 
@@ -20,7 +21,7 @@ dev = [
 ]
 
 [tool.setuptools]
-py-modules = ["app"]
+py-modules = ["app", "gate"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/unit"]

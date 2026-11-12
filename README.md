@@ -148,6 +148,45 @@ LOGOUT_SIBLINGS=https://logout.example.com
   `{ source: "universal-logout", type: "handoff", url }` to the framing page,
   which performs the navigation.
 
+### Back-channel logout gate
+
+Some applications ship an OIDC back-channel logout receiver that checks the
+logout token only partly. The gate checks the token for them and forwards only a
+token that passes every check. Point the IdP's back-channel logout URL of such
+an application at `POST /backchannel/<application id>` and configure:
+
+```dotenv
+LOGOUT_GATE_ISSUER=https://auth.example.com/realms/example
+LOGOUT_GATE_JWKS_URL=https://auth.example.com/realms/example/protocol/openid-connect/certs
+LOGOUT_GATE_CLIENTS={"web-app-xwiki": {"audience": "xwiki", "receiver": "https://xwiki.example.com/oidc/authenticator/backchannel_logout", "key": "<gate key>"}}
+```
+
+- `LOGOUT_GATE_CLIENTS` maps each application id to its client id
+  (`audience`), the absolute `http(s)` URL of its own receiver (`receiver`) and
+  the gate key its proxy expects (`key`). Empty or unset disables the gate, and
+  every `/backchannel/...` request answers `404`. A malformed value, or clients
+  without `LOGOUT_GATE_ISSUER` and an `http(s)` `LOGOUT_GATE_JWKS_URL`, stops the
+  service from starting.
+- The token passes when it is signed by a key of `LOGOUT_GATE_JWKS_URL` with an
+  asymmetric algorithm (RS, PS or ES), names `LOGOUT_GATE_ISSUER` as `iss` and the
+  application's client as `aud`, carries `iat`, `exp`, `jti` and the
+  `http://schemas.openid.net/event/backchannel-logout` event, was issued at most
+  120 seconds ago (30 seconds of clock skew allowed), carries no `nonce` and names
+  `sub`, `sid` or both. This is section 2.6 of OpenID Connect Back-Channel
+  Logout 1.0. The keys are cached for 300 seconds and fetched again for an
+  unknown `kid`.
+- The gate answers `400` to a token that fails a check, `404` to an application
+  it does not serve, `503` while the issuer's keys cannot be fetched, and `502`
+  when the receiver answers anything but `2xx` or cannot be reached. A token that
+  passes goes to the receiver unchanged as the `logout_token` form field with the
+  application's key in the `X-Logout-Gate-Key` header, and the gate answers
+  `200` once the receiver answered `2xx`. The gate follows no redirect, so the
+  key reaches only the configured receiver.
+- The proxy in front of each application must refuse every request to the
+  receiver that does not carry the application's key, and must strip the header
+  before it passes the request on. Otherwise the gate adds nothing, because the
+  receiver can still be reached directly.
+
 ---
 
 ## Docker Image

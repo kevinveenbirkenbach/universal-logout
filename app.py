@@ -8,6 +8,8 @@ from urllib.parse import urlencode, urlsplit
 import yaml
 from flask import Flask, make_response, render_template, request
 
+import gate
+
 app = Flask(__name__, template_folder="templates")
 
 TRANSLATIONS = yaml.safe_load(
@@ -106,6 +108,8 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
+
+app.register_blueprint(gate.blueprint(gate.load(os.environ)))
 
 # Strict anti-cache headers applied to every response
 NO_STORE_HEADERS = {

@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --require-hashes -r requirements.txt \
  && pip uninstall --yes pip setuptools wheel
 
 # Copy application code
-COPY app.py translations.yml ./
+COPY app.py gate.py translations.yml ./
 COPY templates/ ./templates/
 
 # Expose the logout service port dynamically
