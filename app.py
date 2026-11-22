@@ -8,6 +8,8 @@ from urllib.parse import urlencode, urlsplit
 import yaml
 from flask import Flask, make_response, render_template, request
 
+import gate
+
 app = Flask(__name__, template_folder="templates")
 
 TRANSLATIONS = yaml.safe_load(
@@ -106,6 +108,10 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
+
+app.register_blueprint(
+    gate.blueprint(gate.load({name: os.getenv(name, "") for name in gate.SETTINGS}))
+)
 
 # Strict anti-cache headers applied to every response
 NO_STORE_HEADERS = {
@@ -233,9 +239,3 @@ def logout():
         )
 
     return response
-
-
-if __name__ == "__main__":
-    # Development only; use Gunicorn in production
-    port = int(os.getenv("LOGOUT_PORT", "8000"))
-    app.run(host="0.0.0.0", port=port)
