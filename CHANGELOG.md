@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.6.0] - 2026-11-22
+
+Back-channel logout gate, CVE base image refresh, dependency updates
+
 ## [1.5.2] - 2026-10-31
 
 Fixed:
